@@ -1,0 +1,99 @@
+registry:
+  version: 0.1.0
+  description: Padrón curado de universidades elegibles para discovery.
+  eligibility_rule: licensed_and_qs_ranked
+
+countries:
+  - code: AR
+    name: Argentina
+  - code: CL
+    name: Chile
+  - code: CO
+    name: Colombia
+  - code: MX
+    name: Mexico
+  - code: PE
+    name: Peru
+
+institutions:
+  - id: uba
+    name: Universidad de Buenos Aires
+    country: AR
+    aliases:
+      - UBA
+    eligibility:
+      licensed: true
+      qs_ranked: true
+      verification_status: pending_user_review
+      sources: []
+    official_channels:
+      - name: Universidad de Buenos Aires
+        channel_id:
+        url:
+        verification_status: pending_user_review
+
+  - id: uchile
+    name: Universidad de Chile
+    country: CL
+    aliases:
+      - U de Chile
+      - UChile
+    eligibility:
+      licensed: true
+      qs_ranked: true
+      verification_status: pending_user_review
+      sources: []
+    official_channels:
+      - name: Universidad de Chile
+        channel_id:
+        url:
+        verification_status: pending_user_review
+
+  - id: unam
+    name: Universidad Nacional Autonoma de Mexico
+    country: MX
+    aliases:
+      - UNAM
+      - Universidad Nacional Autónoma de México
+    eligibility:
+      licensed: true
+      qs_ranked: true
+      verification_status: pending_user_review
+      sources: []
+    official_channels:
+      - name: UNAM Global
+        channel_id:
+        url:
+        verification_status: pending_user_review
+
+  - id: unal
+    name: Universidad Nacional de Colombia
+    country: CO
+    aliases:
+      - UNAL
+    eligibility:
+      licensed: true
+      qs_ranked: true
+      verification_status: pending_user_review
+      sources: []
+    official_channels:
+      - name: Universidad Nacional de Colombia
+        channel_id:
+        url:
+        verification_status: pending_user_review
+
+  - id: usil
+    name: Universidad San Ignacio de Loyola
+    country: PE
+    aliases:
+      - USIL
+    eligibility:
+      licensed: true
+      qs_ranked: false
+      verification_status: pending_user_review
+      sources: []
+    official_channels:
+      - name: USIL I Universidad San Ignacio de Loyola
+        channel_id:
+        url:
+        verification_status: pending_user_review
