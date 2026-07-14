@@ -43,8 +43,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--indicator",
         action="append",
-        required=True,
         help="Indicador a buscar. Puede repetirse.",
+    )
+    parser.add_argument(
+        "--all-indicators",
+        action="store_true",
+        help="Busca con todos los indicadores del diccionario activo.",
     )
     parser.add_argument("--concept", action="append", help="Concepto opcional.")
     parser.add_argument("--intent", action="append", help="Intencion opcional.")
@@ -138,12 +142,16 @@ def main() -> int:
             raise ValueError("Debes enviar --country o usar --institution-id.")
 
         dictionary = KeywordDictionary.load(args.dictionary)
+        indicators = list(dictionary.indicator_ids) if args.all_indicators else args.indicator
+        if not indicators:
+            raise ValueError("Debes enviar --indicator o usar --all-indicators.")
+
         queries = plan_queries(
             dictionary,
             institution=args.institution,
             aliases=args.alias,
             country=args.country.upper(),
-            indicators=args.indicator,
+            indicators=indicators,
             concepts=args.concept,
             intents=args.intent,
             statuses=args.status,

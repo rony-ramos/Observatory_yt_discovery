@@ -347,6 +347,42 @@ class QueryPlannerTests(unittest.TestCase):
             self.assertEqual("2", videos[0]["occurrences"])
             self.assertEqual("q0001;q0002", videos[0]["query_ids"])
 
+    def test_video_report_preserves_search_indicators_queries_and_keywords(self) -> None:
+        queries = plan_queries(
+            self.dictionary,
+            institution="Universidad de Buenos Aires",
+            aliases=["UBA"],
+            country="AR",
+            indicators=["ingreso", "dinero"],
+            max_queries=2,
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            run_dir = run_search_pipeline(
+                queries=queries,
+                institution="Universidad de Buenos Aires",
+                aliases=["UBA"],
+                country="AR",
+                results_per_query=1,
+                output_root=Path(temporary_directory),
+                searcher=FakeSearcher(),
+                min_sleep=0,
+                max_sleep=0,
+                min_comments=0,
+                sleep=lambda _: None,
+            )
+
+            with (run_dir / "videos.csv").open(encoding="utf-8-sig", newline="") as source:
+                videos = list(csv.DictReader(source))
+
+            expected_queries = ";".join(sorted(query.query for query in queries))
+            expected_keywords = ";".join(sorted(query.term for query in queries))
+            expected_indicators = ";".join(sorted({query.indicator for query in queries}))
+
+            self.assertEqual(expected_indicators, videos[0]["indicators"])
+            self.assertEqual(expected_queries, videos[0]["search_queries"])
+            self.assertEqual(expected_keywords, videos[0]["keywords"])
+
     def test_date_preference_enriches_and_orders_recent_videos_first(self) -> None:
         queries = plan_queries(
             self.dictionary,

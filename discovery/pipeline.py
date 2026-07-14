@@ -53,6 +53,8 @@ VIDEO_COLUMNS = (
     "best_rank",
     "occurrences",
     "query_ids",
+    "search_queries",
+    "keywords",
     "indicators",
     "concepts",
     "term_ids",
@@ -147,6 +149,8 @@ def _merge_hit(
             "best_rank": rank,
             "occurrences": 0,
             "query_ids": set(),
+            "search_queries": set(),
+            "keywords": set(),
             "indicators": set(),
             "concepts": set(),
             "term_ids": set(),
@@ -159,6 +163,8 @@ def _merge_hit(
     video["best_rank"] = min(video["best_rank"], rank)
     video["occurrences"] += 1
     video["query_ids"].add(query.query_id)
+    video["search_queries"].add(query.query)
+    video["keywords"].add(query.term)
     video["indicators"].add(query.indicator)
     video["concepts"].add(query.concept)
     video["term_ids"].add(query.term_id)
@@ -172,7 +178,14 @@ def _write_videos(
     rows: list[dict[str, Any]] = []
     for video in videos.values():
         row = dict(video)
-        for field in ("query_ids", "indicators", "concepts", "term_ids"):
+        for field in (
+            "query_ids",
+            "search_queries",
+            "keywords",
+            "indicators",
+            "concepts",
+            "term_ids",
+        ):
             row[field] = ";".join(sorted(row[field]))
         rows.append(row)
 
