@@ -22,6 +22,7 @@ institutions:
     aliases:
       - UBA
     eligibility:
+      national: true
       licensed: true
       qs_ranked: true
       verification_status: pending_user_review
@@ -39,6 +40,7 @@ institutions:
       - U de Chile
       - UChile
     eligibility:
+      national: true
       licensed: true
       qs_ranked: true
       verification_status: pending_user_review
@@ -56,6 +58,7 @@ institutions:
       - UNAM
       - Universidad Nacional Autónoma de México
     eligibility:
+      national: true
       licensed: true
       qs_ranked: true
       verification_status: pending_user_review
@@ -72,6 +75,7 @@ institutions:
     aliases:
       - UNAL
     eligibility:
+      national: true
       licensed: true
       qs_ranked: true
       verification_status: pending_user_review
@@ -88,8 +92,9 @@ institutions:
     aliases:
       - USIL
     eligibility:
+      national: false
       licensed: true
-      qs_ranked: false
+      qs_ranked: true
       verification_status: pending_user_review
       sources: []
     official_channels:
@@ -97,3 +102,22 @@ institutions:
         channel_id:
         url:
         verification_status: pending_user_review
+
+  - id: unr
+    name: Universidad Nacional de Rosario
+    country: AR
+    aliases:
+      - UNR
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: verified
+      sources:
+        - criterion: national_and_licensed
+          url: https://www.argentina.gob.ar/normativa/nacional/ley-17987-231594/texto
+          note: Created as a national university by Law 17.987.
+        - criterion: qs_ranked
+          url: https://www.topuniversities.com/universities/universidad-nacional-de-rosario-unr
+          note: QS World University Rankings 2026, band 1001-1200.
+    official_channels: [https://www.youtube.com/@UNROficial]

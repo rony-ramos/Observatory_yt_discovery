@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from datetime import date
 from pathlib import Path
@@ -21,6 +22,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="ID del padron de instituciones. Si se usa, carga nombre, pais, aliases y canales.",
     )
     parser.add_argument("--institutions", help="Ruta a una version especifica del padron.")
+    parser.add_argument(
+        "--require-eligible",
+        action="store_true",
+        help="Exige licensed=true y qs_ranked=true del padron antes de buscar.",
+    )
+    parser.add_argument(
+        "--require-national",
+        action="store_true",
+        help="Exige que la institucion este registrada como universidad nacional.",
+    )
     parser.add_argument("--institution", help="Nombre oficial de la institucion.")
     parser.add_argument(
         "--alias",
@@ -68,8 +79,30 @@ def build_parser() -> argparse.ArgumentParser:
         default="strict",
         help="strict excluye videos que no mencionan la institucion en sus metadatos.",
     )
+    parser.add_argument(
+        "--min-comments",
+        type=int,
+        default=75,
+        help="Minimo de comentarios requerido. Usa 0 para desactivar este filtro.",
+    )
+    parser.add_argument(
+        "--youtube-api-key",
+        default=os.getenv("YOUTUBE_API_KEY"),
+        help="API key opcional para completar comment_count faltante con YouTube Data API.",
+    )
     parser.add_argument("--metadata-min-sleep", type=float, default=2.5)
     parser.add_argument("--metadata-max-sleep", type=float, default=5.0)
+    parser.add_argument(
+        "--metadata-workers",
+        type=int,
+        default=1,
+        help="Cantidad de validaciones de metadata en paralelo. Default conservador: 1.",
+    )
+    parser.add_argument(
+        "--metadata-skip-cache",
+        type=Path,
+        help="JSON persistente con videos cuya metadata no debe reintentarse.",
+    )
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -90,7 +123,11 @@ def main() -> int:
         registry_institution = None
         if args.institution_id:
             registry = InstitutionRegistry.load(args.institutions)
-            registry_institution = registry.get(args.institution_id)
+            registry_institution = registry.get(
+                args.institution_id,
+                require_eligible=args.require_eligible,
+                require_national=args.require_national,
+            )
             args.institution = registry_institution.name
             args.alias = list(registry_institution.aliases) + list(args.alias)
             args.country = registry_institution.country
@@ -138,12 +175,17 @@ def main() -> int:
             published_after=args.published_after,
             date_policy=args.date_policy,
             institution_policy=args.institution_policy,
+            min_comments=args.min_comments,
+            youtube_api_key=args.youtube_api_key,
             metadata_min_sleep=args.metadata_min_sleep,
             metadata_max_sleep=args.metadata_max_sleep,
+            metadata_workers=args.metadata_workers,
+            metadata_skip_cache=args.metadata_skip_cache,
             institution_registry_version=registry.version if registry else None,
             institution_id=registry_institution.id if registry_institution else None,
             institution_eligibility=(
                 {
+                    "national": registry_institution.national,
                     "licensed": registry_institution.licensed,
                     "qs_ranked": registry_institution.qs_ranked,
                     "verification_status": registry_institution.verification_status,

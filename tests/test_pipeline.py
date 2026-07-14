@@ -149,6 +149,15 @@ class UnavailableMetadataSearcher:
         )
 
 
+class CountingUnavailableMetadataSearcher(UnavailableMetadataSearcher):
+    def __init__(self) -> None:
+        self.enrich_calls = 0
+
+    def enrich(self, hit: SearchHit) -> SearchHit:
+        self.enrich_calls += 1
+        return super().enrich(hit)
+
+
 class OfficialChannelSearcher:
     def search(self, query: str, max_results: int) -> list[SearchHit]:
         return [
@@ -180,6 +189,64 @@ class OfficialChannelSearcher:
 
     def enrich(self, hit: SearchHit) -> SearchHit:
         return hit
+
+
+class CommentCountSearcher:
+    def search(self, query: str, max_results: int) -> list[SearchHit]:
+        return [
+            SearchHit(
+                video_id="high12def45",
+                url="https://www.youtube.com/watch?v=high12def45",
+                title="Curso de ingreso a la UBA",
+                channel="Canal estudiantil",
+                channel_id="UC-high",
+                duration=300,
+                view_count=100,
+                comment_count=80,
+                upload_date="20240101",
+                live_status=None,
+                description="Universidad de Buenos Aires",
+            ),
+            SearchHit(
+                video_id="low123def45",
+                url="https://www.youtube.com/watch?v=low123def45",
+                title="CBC UBA experiencia",
+                channel="Canal estudiantil",
+                channel_id="UC-low",
+                duration=300,
+                view_count=100,
+                comment_count=74,
+                upload_date="20240101",
+                live_status=None,
+                description="Universidad de Buenos Aires",
+            ),
+            SearchHit(
+                video_id="miss12def45",
+                url="https://www.youtube.com/watch?v=miss12def45",
+                title="Ingreso UBA preguntas",
+                channel="Canal estudiantil",
+                channel_id="UC-miss",
+                duration=300,
+                view_count=100,
+                comment_count=None,
+                upload_date="20240101",
+                live_status=None,
+                description="Universidad de Buenos Aires",
+            ),
+        ][:max_results]
+
+    def enrich(self, hit: SearchHit) -> SearchHit:
+        return hit
+
+
+class FakeCommentApiClient:
+    def __init__(self, counts: dict[str, int | None]) -> None:
+        self.counts = counts
+        self.calls: list[list[str]] = []
+
+    def fetch_comment_counts(self, video_ids: list[str]) -> dict[str, int | None]:
+        self.calls.append(video_ids)
+        return {video_id: self.counts.get(video_id) for video_id in video_ids}
 
 
 class QueryPlannerTests(unittest.TestCase):
@@ -264,6 +331,7 @@ class QueryPlannerTests(unittest.TestCase):
                 searcher=FakeSearcher(),
                 min_sleep=0,
                 max_sleep=0,
+                min_comments=0,
                 sleep=lambda _: None,
             )
 
@@ -304,6 +372,7 @@ class QueryPlannerTests(unittest.TestCase):
                 date_policy="prefer",
                 metadata_min_sleep=0,
                 metadata_max_sleep=0,
+                min_comments=0,
                 sleep=lambda _: None,
             )
 
@@ -341,6 +410,7 @@ class QueryPlannerTests(unittest.TestCase):
                 max_sleep=0,
                 published_after=date(2021, 12, 31),
                 institution_policy="strict",
+                min_comments=0,
                 sleep=lambda _: None,
             )
 
@@ -377,6 +447,7 @@ class QueryPlannerTests(unittest.TestCase):
                 min_sleep=0,
                 max_sleep=0,
                 institution_policy="strict",
+                min_comments=0,
                 sleep=lambda _: None,
             )
 
@@ -411,6 +482,7 @@ class QueryPlannerTests(unittest.TestCase):
                 metadata_max_sleep=0,
                 published_after=date(2021, 12, 31),
                 institution_policy="strict",
+                min_comments=0,
                 sleep=lambda _: None,
             )
 
@@ -423,12 +495,151 @@ class QueryPlannerTests(unittest.TestCase):
             self.assertEqual("dead12def45", rejected[0]["video_id"])
             self.assertEqual("metadata_unavailable", rejected[0]["rejection_reason"])
 
-    def test_institution_registry_requires_licensed_and_qs_ranked(self) -> None:
+    def test_min_comments_filters_and_api_fills_missing_counts(self) -> None:
+        queries = plan_queries(
+            self.dictionary,
+            institution="Universidad de Buenos Aires",
+            aliases=["UBA"],
+            country="AR",
+            indicators=["ingreso"],
+            max_queries=1,
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            api_client = FakeCommentApiClient({"miss12def45": 120})
+            run_dir = run_search_pipeline(
+                queries=queries,
+                institution="Universidad de Buenos Aires",
+                aliases=["UBA"],
+                country="AR",
+                results_per_query=3,
+                output_root=Path(temporary_directory),
+                searcher=CommentCountSearcher(),
+                min_sleep=0,
+                max_sleep=0,
+                institution_policy="strict",
+                min_comments=75,
+                youtube_api_client=api_client,
+                sleep=lambda _: None,
+            )
+
+            manifest = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+            with (run_dir / "videos.csv").open(encoding="utf-8-sig", newline="") as source:
+                selected = {
+                    row["video_id"]: row["comment_count_match"]
+                    for row in csv.DictReader(source)
+                }
+            with (run_dir / "rejected.csv").open(encoding="utf-8-sig", newline="") as source:
+                rejected = {
+                    row["video_id"]: row["rejection_reason"]
+                    for row in csv.DictReader(source)
+                }
+
+            self.assertEqual([["miss12def45"]], api_client.calls)
+            self.assertEqual(1, manifest["comment_count_api_checked"])
+            self.assertEqual(1, manifest["comment_count_api_filled"])
+            self.assertEqual(2, manifest["comment_count_qualified"])
+            self.assertEqual({"high12def45": "True", "miss12def45": "True"}, selected)
+            self.assertEqual(
+                {"low123def45": "comment_count_below_minimum"},
+                rejected,
+            )
+
+    def test_metadata_skip_cache_prevents_rechecking_unavailable_video(self) -> None:
+        queries = plan_queries(
+            self.dictionary,
+            institution="Universidad San Ignacio de Loyola",
+            aliases=["USIL"],
+            country="PE",
+            indicators=["vida_campus"],
+            max_queries=1,
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            cache_path = Path(temporary_directory) / "metadata_skip_cache.json"
+            first_searcher = CountingUnavailableMetadataSearcher()
+            run_search_pipeline(
+                queries=queries,
+                institution="Universidad San Ignacio de Loyola",
+                aliases=["USIL"],
+                country="PE",
+                results_per_query=1,
+                output_root=Path(temporary_directory) / "run1",
+                searcher=first_searcher,
+                min_sleep=0,
+                max_sleep=0,
+                metadata_min_sleep=0,
+                metadata_max_sleep=0,
+                metadata_skip_cache=cache_path,
+                published_after=date(2021, 12, 31),
+                institution_policy="strict",
+                min_comments=0,
+                sleep=lambda _: None,
+            )
+
+            second_searcher = CountingUnavailableMetadataSearcher()
+            run_dir = run_search_pipeline(
+                queries=queries,
+                institution="Universidad San Ignacio de Loyola",
+                aliases=["USIL"],
+                country="PE",
+                results_per_query=1,
+                output_root=Path(temporary_directory) / "run2",
+                searcher=second_searcher,
+                min_sleep=0,
+                max_sleep=0,
+                metadata_min_sleep=0,
+                metadata_max_sleep=0,
+                metadata_skip_cache=cache_path,
+                published_after=date(2021, 12, 31),
+                institution_policy="strict",
+                min_comments=0,
+                sleep=lambda _: None,
+            )
+
+            manifest = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+            with (run_dir / "rejected.csv").open(encoding="utf-8-sig", newline="") as source:
+                rejected = list(csv.DictReader(source))
+
+            self.assertEqual(1, first_searcher.enrich_calls)
+            self.assertEqual(0, second_searcher.enrich_calls)
+            self.assertEqual(1, manifest["metadata_skipped_cached"])
+            self.assertEqual("metadata_unavailable", rejected[0]["rejection_reason"])
+
+    def test_institution_registry_allows_pending_eligibility_by_default(self) -> None:
         registry = InstitutionRegistry.load()
+        pending_registry = InstitutionRegistry(
+            {
+                "registry": {"version": "test"},
+                "institutions": [
+                    {
+                        "id": "pending",
+                        "name": "Universidad Pendiente",
+                        "country": "PE",
+                        "eligibility": {
+                            "national": False,
+                            "licensed": True,
+                            "qs_ranked": False,
+                        },
+                    }
+                ],
+            },
+            Path("pending.yaml"),
+        )
 
         self.assertEqual("uba", registry.get("uba").id)
+        self.assertEqual("pending", pending_registry.get("pending").id)
         with self.assertRaises(ValueError):
-            registry.get("usil")
+            pending_registry.get("pending", require_eligible=True)
+        with self.assertRaises(ValueError):
+            pending_registry.get("pending", require_national=True)
+
+    def test_institution_registry_accepts_official_channel_url_shorthand(self) -> None:
+        registry = InstitutionRegistry.load()
+
+        channel = registry.get("unr").official_channels[0]
+        self.assertEqual("https://www.youtube.com/@UNROficial", channel.url)
+        self.assertIsNone(channel.name)
 
     def test_pipeline_classifies_official_and_third_party_channels(self) -> None:
         queries = plan_queries(
@@ -452,6 +663,7 @@ class QueryPlannerTests(unittest.TestCase):
                 min_sleep=0,
                 max_sleep=0,
                 institution_policy="strict",
+                min_comments=0,
                 official_channel_names=["USIL I Universidad San Ignacio de Loyola"],
                 sleep=lambda _: None,
             )

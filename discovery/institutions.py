@@ -34,6 +34,7 @@ class Institution:
     name: str
     country: str
     aliases: tuple[str, ...]
+    national: bool
     licensed: bool
     qs_ranked: bool
     verification_status: str
@@ -83,7 +84,13 @@ class InstitutionRegistry:
         registry_path = registry_path.resolve()
         return cls(_load_yaml(registry_path), registry_path)
 
-    def get(self, institution_id: str, *, require_eligible: bool = True) -> Institution:
+    def get(
+        self,
+        institution_id: str,
+        *,
+        require_eligible: bool = False,
+        require_national: bool = False,
+    ) -> Institution:
         key = normalize_text(institution_id)
         if key not in self._institutions:
             available = ", ".join(sorted(item.id for item in self._institutions.values()))
@@ -95,18 +102,17 @@ class InstitutionRegistry:
                 f"{institution.name} no cumple licensed=true y qs_ranked=true "
                 "en el padron de instituciones."
             )
+        if require_national and not institution.national:
+            raise ValueError(
+                f"{institution.name} no esta registrada como universidad nacional."
+            )
         return institution
 
 
 def _parse_institution(item: dict[str, Any]) -> Institution:
     eligibility = item.get("eligibility") or {}
     channels = tuple(
-        OfficialChannel(
-            name=channel.get("name"),
-            channel_id=channel.get("channel_id"),
-            url=channel.get("url"),
-            verification_status=channel.get("verification_status", "unknown"),
-        )
+        _parse_official_channel(channel)
         for channel in item.get("official_channels", [])
     )
     return Institution(
@@ -114,8 +120,27 @@ def _parse_institution(item: dict[str, Any]) -> Institution:
         name=str(item["name"]),
         country=str(item["country"]).upper(),
         aliases=tuple(item.get("aliases", [])),
+        national=bool(eligibility.get("national")),
         licensed=bool(eligibility.get("licensed")),
         qs_ranked=bool(eligibility.get("qs_ranked")),
         verification_status=str(eligibility.get("verification_status", "unknown")),
         official_channels=channels,
+    )
+
+
+def _parse_official_channel(channel: Any) -> OfficialChannel:
+    if isinstance(channel, str):
+        return OfficialChannel(
+            name=None,
+            channel_id=None,
+            url=channel,
+            verification_status="pending_user_review",
+        )
+    if not isinstance(channel, dict):
+        raise ValueError("Cada canal oficial debe ser un objeto o una URL.")
+    return OfficialChannel(
+        name=channel.get("name"),
+        channel_id=channel.get("channel_id"),
+        url=channel.get("url"),
+        verification_status=channel.get("verification_status", "unknown"),
     )
