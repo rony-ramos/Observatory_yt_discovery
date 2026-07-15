@@ -121,3 +121,30 @@ institutions:
           url: https://www.topuniversities.com/universities/universidad-nacional-de-rosario-unr
           note: QS World University Rankings 2026, band 1001-1200.
     official_channels: [https://www.youtube.com/@UNROficial]
+
+  - id: uanl
+    name: Universidad Autonoma de Nuevo Leon
+    country: MX
+    aliases:
+      - UANL
+      - Universidad Autónoma de Nuevo León
+    eligibility:
+      national: false
+      licensed: true
+      qs_ranked: true
+      verification_status: verified
+      sources:
+        - criterion: licensed
+          url: https://www.uanl.mx/
+          note: Public autonomous university in Mexico with current official institutional presence.
+        - criterion: qs_ranked
+          url: https://www.topuniversities.com/universities/universidad-autonoma-de-nuevo-leon
+          note: QS World University Rankings 2027, band 1201-1400; Latin America and the Caribbean ranking #63.
+        - criterion: student_count
+          url: https://www.uanl.mx/
+          note: Official site reports more than 221 thousand students.
+    official_channels:
+      - name: Universidad Autónoma de Nuevo León
+        channel_id:
+        url:
+        verification_status: pending_user_review
