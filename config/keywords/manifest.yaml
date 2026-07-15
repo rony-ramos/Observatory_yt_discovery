@@ -1,9 +1,12 @@
 schema_version: "1.0"
 dictionary_id: observatorio_educacion_superior_youtube
-active_version: "1.0.0"
+active_version: "1.1.0"
 versions:
   - version: "1.0.0"
     file: keywords-1.0.0.yaml
     status: draft
     created_at: "2026-07-14"
-
+  - version: "1.1.0"
+    file: keywords-1.1.0.yaml
+    status: active
+    created_at: "2026-07-15"

@@ -356,6 +356,16 @@ class QueryPlannerTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.dictionary = KeywordDictionary.load()
 
+    def test_natural_dictionary_is_active_by_default(self) -> None:
+        self.assertEqual("1.1.0", self.dictionary.version)
+        variants = self.dictionary.iter_variants(
+            country="AR",
+            indicators=["experiencia"],
+        )
+        self.assertTrue(
+            any(item.phrase == "opinion honesta sobre la universidad" for item in variants)
+        )
+
     def test_plan_is_balanced_and_deduplicated(self) -> None:
         queries = plan_queries(
             self.dictionary,

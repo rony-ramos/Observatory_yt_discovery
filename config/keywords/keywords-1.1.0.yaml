@@ -1,0 +1,610 @@
+schema_version: "1.0"
+
+dictionary:
+  id: observatorio_educacion_superior_youtube
+  version: "1.1.0"
+  status: active
+  language: es
+  created_at: "2026-07-14"
+  updated_at: "2026-07-15"
+  purpose: >-
+    Descubrir videos sobre percepcion y oferta de educacion superior mediante
+    terminos trazables por indicador, concepto, pais e intencion de busqueda.
+  scope: universidades e instituciones de educacion superior
+
+provenance:
+  - id: annotation_guide_v1
+    type: project_document
+    path: "../../../../docs/Guía de anotación para videos de YouTube (1).docx"
+  - id: scraping_protocol_v1
+    type: project_document
+    path: "../../../../docs/PROTOCOLO_SCRAPEO_EQUIPO.md"
+  - id: initial_lexical_seed
+    type: expert_seed
+    description: Primera expansion contextual para validacion del equipo.
+  - id: natural_queries_v1
+    type: experiment_profile
+    description: Frases completas y de alta intencion seleccionadas como diccionario activo.
+
+countries:
+  - code: AR
+    label: Argentina
+  - code: CL
+    label: Chile
+  - code: CO
+    label: Colombia
+  - code: MX
+    label: Mexico
+  - code: PE
+    label: Peru
+
+statuses:
+  - seed
+  - candidate
+  - validated
+  - rejected
+
+source_types:
+  - official
+  - third_party
+
+intents:
+  - id: informational
+    label: Informacion
+    description: Busca datos, caracteristicas o explicaciones.
+  - id: procedural
+    label: Procedimiento
+    description: Busca pasos, requisitos, fechas o tramites.
+  - id: experiential
+    label: Experiencia
+    description: Busca relatos personales y vida cotidiana.
+  - id: opinion
+    label: Opinion
+    description: Busca valoraciones, ventajas o desventajas.
+  - id: comparison
+    label: Comparacion
+    description: Contrasta instituciones, programas o alternativas.
+  - id: problem
+    label: Problema
+    description: Busca dificultades, reclamos o aspectos negativos.
+
+normalization:
+  lowercase: true
+  strip_diacritics_for_matching: true
+  collapse_whitespace: true
+  preserve_original_value: true
+  deduplicate_queries: true
+
+intent_modifiers:
+  informational:
+    global:
+      - informacion
+      - todo sobre
+      - como es
+  procedural:
+    global:
+      - como ingresar
+      - requisitos
+      - paso a paso
+      - fechas
+  experiential:
+    global:
+      - mi experiencia
+      - un dia en
+      - primer semestre
+      - vida de estudiante
+  opinion:
+    global:
+      - opinion
+      - vale la pena
+      - lo mejor y lo peor
+      - cosas que nadie te dice
+  comparison:
+    global:
+      - comparacion
+      - versus
+      - cual es mejor
+  problem:
+    global:
+      - problemas
+      - dificultades
+      - reclamo
+      - lo malo de
+
+indicators:
+  - id: ingreso
+    label: Ingreso
+    definition: Procesos para postular, ser admitido e inscribirse en la institucion.
+    concepts:
+      - id: matricula
+        label: Matricula
+        definition: Inscripcion formal del estudiante o de sus asignaturas.
+      - id: admision
+        label: Admision
+        definition: Requisitos, evaluacion, postulacion y resultados de ingreso.
+
+  - id: dinero
+    label: Dinero
+    definition: Costos de estudio y mecanismos de apoyo economico.
+    concepts:
+      - id: costo
+        label: Costo
+        definition: Pagos, aranceles, cuotas y otros gastos de estudio.
+      - id: beca
+        label: Beca
+        definition: Becas, gratuidad, creditos y ayudas economicas.
+
+  - id: programas
+    label: Programas
+    definition: Oferta formativa, carreras y estudios posteriores al grado.
+    concepts:
+      - id: carrera
+        label: Carrera
+        definition: Carreras, planes de estudio, asignaturas y perfiles formativos.
+      - id: postgrado
+        label: Postgrado
+        definition: Maestrias, doctorados, especializaciones y diplomados.
+
+  - id: calidad
+    label: Calidad
+    definition: Percepcion sobre la formacion academica y el desempeno docente.
+    concepts:
+      - id: calidad_academica
+        label: Calidad academica
+        definition: Nivel, exigencia, prestigio, acreditacion y calidad de ensenanza.
+      - id: docente
+        label: Docente
+        definition: Profesores, practicas de ensenanza y calidad docente.
+
+  - id: vida_campus
+    label: Vida y campus
+    definition: Espacios, servicios y experiencia social dentro de la institucion.
+    concepts:
+      - id: infraestructura
+        label: Infraestructura
+        definition: Campus, aulas, laboratorios, bibliotecas y servicios fisicos.
+      - id: vida_universitaria
+        label: Vida universitaria
+        definition: Actividades, comunidad, ambiente y participacion estudiantil.
+
+  - id: experiencia
+    label: Experiencia
+    definition: Formas de estudio y testimonios personales sobre la institucion.
+    concepts:
+      - id: modalidad
+        label: Modalidad
+        definition: Estudio presencial, virtual, hibrido, semipresencial o a distancia.
+      - id: testimonio
+        label: Testimonio
+        definition: Relato u opinion personal basada en experiencia directa.
+
+terms:
+  - id: ingreso.matricula.inscripcion
+    indicator: ingreso
+    concept: matricula
+    canonical: inscripcion universitaria
+    variants:
+      global:
+        - como hacer la matricula universitaria
+        - inscripcion a materias universitarias
+        - requisitos para matricularse
+        - proceso de inscripcion universitaria
+      AR:
+        - como inscribirse a materias
+        - inscripcion a cursadas
+        - anotarse a materias de la carrera
+        - problemas para inscribirse a materias
+      CL: [matricula universitaria, proceso de matricula]
+      CO: [matricula academica, inscripcion de materias]
+      MX:
+        - como inscribir materias
+        - proceso de reinscripcion universitaria
+        - problemas con la inscripcion de materias
+        - requisitos para reinscribirse
+      PE: [matricula universitaria, proceso de matricula]
+    intents: [informational, procedural, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+    context:
+      boost_any: [fechas, proceso, requisitos, asignaturas, materias, inscripcion]
+      exclude_any: [precio de matricula, costo de matricula, pagar matricula]
+
+  - id: ingreso.matricula.calendario
+    indicator: ingreso
+    concept: matricula
+    canonical: fechas de matricula
+    variants:
+      global: [fechas de matricula, calendario de matricula, cronograma de matricula]
+    intents: [procedural]
+    source_types: [official, third_party]
+    status: seed
+    provenance: initial_lexical_seed
+    search_weight: 0.9
+
+  - id: ingreso.admision.postulacion
+    indicator: ingreso
+    concept: admision
+    canonical: admision universitaria
+    variants:
+      global:
+        - como ingresar a la universidad
+        - proceso de admision universitaria
+        - como postular a la universidad
+        - experiencia con el proceso de ingreso
+      AR:
+        - como ingresar
+        - experiencia con el curso de ingreso
+        - proceso para estudiantes ingresantes
+        - dificultades del ingreso universitario
+      CL: [admision universitaria, postulacion universitaria]
+      CO: [proceso de admision, aspirantes]
+      MX:
+        - como entrar
+        - convocatoria de nuevo ingreso
+        - experiencia con el examen de ingreso
+        - proceso para aspirantes universitarios
+      PE: [admision universitaria, proceso de admision]
+    intents: [informational, procedural, experiential, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+
+  - id: ingreso.admision.requisitos
+    indicator: ingreso
+    concept: admision
+    canonical: requisitos de ingreso
+    variants:
+      global:
+        - requisitos de ingreso
+        - examen de admision
+        - puntaje de ingreso
+        - vacantes
+        - resultados de admision
+        - lista de admitidos
+    intents: [informational, procedural, experiential]
+    source_types: [official, third_party]
+    status: seed
+    provenance: initial_lexical_seed
+    search_weight: 1.0
+
+  - id: dinero.costo.arancel
+    indicator: dinero
+    concept: costo
+    canonical: costo de estudiar
+    variants:
+      global:
+        - cuanto cuesta estudiar
+        - costo de estudiar una carrera
+        - arancel universitario
+        - gastos para estudiar en la universidad
+      AR:
+        - cuanto cuesta estudiar
+        - universidad gratuita o arancelada
+        - costo de vida para estudiar
+        - gastos de un estudiante universitario
+      CL: [arancel, valor de la carrera, derecho de matricula]
+      CO: [valor de la matricula, costo del semestre]
+      MX:
+        - cuanto cuesta estudiar
+        - costo de una carrera universitaria
+        - colegiatura y gastos universitarios
+        - cuanto se paga por semestre
+      PE: [pension, costo de la carrera, mensualidad]
+    intents: [informational, experiential, comparison, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+
+  - id: dinero.costo.pagos
+    indicator: dinero
+    concept: costo
+    canonical: pagos universitarios
+    variants:
+      global: [pagos universitarios, formas de pago, mensualidad, cuotas universitarias]
+    intents: [informational, procedural, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: initial_lexical_seed
+    search_weight: 0.8
+
+  - id: dinero.beca.apoyo
+    indicator: dinero
+    concept: beca
+    canonical: becas universitarias
+    variants:
+      global: [beca, becas universitarias, apoyo economico, ayuda economica]
+      AR: [beca estudiantil, ayuda economica]
+      CL: [beneficios estudiantiles, gratuidad, becas y creditos]
+      CO: [beca universitaria, credito educativo, apoyo de sostenimiento]
+      MX: [beca universitaria, apoyo para estudiantes]
+      PE: [beca universitaria, subvencion, credito educativo]
+    intents: [informational, procedural, experiential, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+
+  - id: programas.carrera.oferta
+    indicator: programas
+    concept: carrera
+    canonical: oferta academica
+    variants:
+      global:
+        - que carreras se pueden estudiar
+        - oferta de carreras universitarias
+        - carreras y salidas profesionales
+        - como elegir una carrera
+    intents: [informational, experiential, opinion, comparison]
+    source_types: [official, third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+
+  - id: programas.carrera.plan
+    indicator: programas
+    concept: carrera
+    canonical: plan de estudios
+    variants:
+      global:
+        - plan de estudios de la carrera
+        - materias de la carrera
+        - duracion y materias de la carrera
+        - opinion sobre el plan de estudios
+      AR:
+        - plan de carrera y materias
+        - materias obligatorias y electivas
+        - dificultad de las materias
+        - como son las materias de la carrera
+      CL: [malla curricular, ramos de la carrera]
+      CO: [pensum, plan de estudios]
+      MX:
+        - mapa curricular de la carrera
+        - materias por semestre
+        - dificultad del plan de estudios
+        - como es el plan de estudios
+      PE: [malla curricular, plan de estudios]
+    intents: [informational, experiential, comparison, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: initial_lexical_seed
+    search_weight: 0.9
+
+  - id: programas.postgrado.oferta
+    indicator: programas
+    concept: postgrado
+    canonical: estudios de postgrado
+    variants:
+      global:
+        - postgrado
+        - posgrado
+        - maestria
+        - doctorado
+        - especializacion
+        - diplomado
+    intents: [informational, experiential, opinion, comparison]
+    source_types: [official, third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+
+  - id: calidad.calidad_academica.nivel
+    indicator: calidad
+    concept: calidad_academica
+    canonical: calidad academica
+    variants:
+      global:
+        - calidad academica
+        - nivel academico
+        - calidad de ensenanza
+        - exigencia academica
+        - prestigio academico
+        - acreditacion
+    intents: [informational, experiential, opinion, comparison, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+    context:
+      boost_any: [academica, ensenanza, exigencia, acreditacion, universidad]
+      exclude_any: [calidad de video, calidad de audio, alta calidad]
+
+  - id: calidad.calidad_academica.reputacion
+    indicator: calidad
+    concept: calidad_academica
+    canonical: reputacion universitaria
+    variants:
+      global: [reputacion universitaria, prestigio de la universidad, ranking universitario]
+    intents: [informational, opinion, comparison]
+    source_types: [official, third_party]
+    status: seed
+    provenance: initial_lexical_seed
+    search_weight: 0.7
+
+  - id: calidad.docente.profesores
+    indicator: calidad
+    concept: docente
+    canonical: profesores universitarios
+    variants:
+      global:
+        - como son los profesores
+        - opinion sobre los profesores
+        - metodo de ensenanza de los docentes
+        - experiencia con profesores universitarios
+      MX:
+        - opinion sobre los maestros
+        - como ensenan los profesores
+        - experiencia con maestros universitarios
+        - calidad de los profesores
+    intents: [informational, experiential, opinion, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+
+  - id: vida_campus.infraestructura.campus
+    indicator: vida_campus
+    concept: infraestructura
+    canonical: infraestructura universitaria
+    variants:
+      global:
+        - recorrido por la universidad
+        - como son las instalaciones
+        - tour por las facultades
+        - experiencia en el campus universitario
+    intents: [informational, experiential, opinion, comparison, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+
+  - id: vida_campus.infraestructura.servicios
+    indicator: vida_campus
+    concept: infraestructura
+    canonical: servicios del campus
+    variants:
+      global:
+        - comedor universitario
+        - residencia universitaria
+        - transporte universitario
+        - gimnasio universitario
+        - servicios del campus
+    intents: [informational, experiential, opinion, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: initial_lexical_seed
+    search_weight: 0.9
+
+  - id: vida_campus.vida_universitaria.ambiente
+    indicator: vida_campus
+    concept: vida_universitaria
+    canonical: vida universitaria
+    variants:
+      global:
+        - vida universitaria
+        - vida en el campus
+        - ambiente universitario
+        - comunidad estudiantil
+        - vida de estudiante
+    intents: [experiential, opinion, comparison, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+
+  - id: vida_campus.vida_universitaria.actividades
+    indicator: vida_campus
+    concept: vida_universitaria
+    canonical: actividades estudiantiles
+    variants:
+      global:
+        - actividades estudiantiles
+        - deportes universitarios
+        - clubes universitarios
+        - asociaciones estudiantiles
+        - centro de estudiantes
+        - eventos universitarios
+    intents: [informational, experiential, opinion]
+    source_types: [official, third_party]
+    status: seed
+    provenance: initial_lexical_seed
+    search_weight: 0.8
+
+  - id: experiencia.modalidad.formato
+    indicator: experiencia
+    concept: modalidad
+    canonical: modalidad de estudio
+    variants:
+      global:
+        - modalidad de cursado
+        - como son las clases
+        - experiencia con clases virtuales
+        - estudiar presencial o virtual
+    intents: [informational, experiential, opinion, comparison, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+    context:
+      boost_any: [clases, carrera, universidad, estudiar, curso]
+      exclude_any: [modalidad deportiva, competencia deportiva]
+
+  - id: experiencia.modalidad.horarios
+    indicator: experiencia
+    concept: modalidad
+    canonical: horarios de estudio
+    variants:
+      global: [horarios, turnos, jornada de estudio, clases nocturnas]
+    intents: [informational, experiential, opinion, problem]
+    source_types: [official, third_party]
+    status: seed
+    provenance: initial_lexical_seed
+    search_weight: 0.7
+
+  - id: experiencia.testimonio.relato
+    indicator: experiencia
+    concept: testimonio
+    canonical: experiencia estudiantil
+    variants:
+      global:
+        - experiencia de estudiantes
+        - primer ano en la universidad
+        - dia como estudiante universitario
+        - experiencia estudiando una carrera
+    intents: [experiential, opinion]
+    source_types: [third_party]
+    status: seed
+    provenance: annotation_guide_v1
+    search_weight: 1.0
+    context:
+      boost_any: [estudiante, carrera, semestre, universidad, campus]
+      exclude_any: [experiencia laboral, experiencia profesional requerida]
+
+  - id: experiencia.testimonio.valoracion
+    indicator: experiencia
+    concept: testimonio
+    canonical: opinion sobre la universidad
+    variants:
+      global:
+        - vale la pena estudiar aqui
+        - ventajas y desventajas de estudiar
+        - problemas reales de estudiantes
+        - opinion honesta sobre la universidad
+    intents: [opinion, comparison, problem]
+    source_types: [third_party]
+    status: seed
+    provenance: initial_lexical_seed
+    search_weight: 1.0
+
+ambiguity_rules:
+  - id: matricula_ingreso_vs_costo
+    term_ids: [ingreso.matricula.inscripcion]
+    description: Matricula puede representar inscripcion o un pago obligatorio.
+    when_any: [precio, costo, pagar, arancel, cuota, valor]
+    action: remap
+    target:
+      indicator: dinero
+      concept: costo
+
+  - id: ingreso_vs_ingreso_economico
+    term_ids: [ingreso.admision.postulacion]
+    description: Ingreso aislado puede referirse a salario o ingresos economicos.
+    when_any: [salario, sueldo, ganancias, ingresos economicos]
+    unless_any: [universidad, admision, postulacion, estudiante]
+    action: exclude
+
+  - id: calidad_multimedia
+    term_ids: [calidad.calidad_academica.nivel]
+    description: Calidad puede describir el audio o video y no la educacion.
+    when_any: [calidad de video, calidad de audio, resolucion, 1080p, 4k]
+    action: exclude
+
+  - id: experiencia_no_estudiantil
+    term_ids: [experiencia.testimonio.relato]
+    description: Experiencia puede ser laboral y no una vivencia universitaria.
+    when_any: [experiencia laboral, experiencia profesional, anos de experiencia]
+    unless_any: [estudiante, universidad, carrera, semestre, campus]
+    action: exclude

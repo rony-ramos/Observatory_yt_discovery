@@ -145,6 +145,6 @@ institutions:
           note: Official site reports more than 221 thousand students.
     official_channels:
       - name: Universidad Autónoma de Nuevo León
-        channel_id:
-        url:
-        verification_status: pending_user_review
+        channel_id: UC5p6qfmUMpy3xB1c_afImhg
+        url: https://www.youtube.com/@uanlred
+        verification_status: verified

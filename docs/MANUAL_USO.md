@@ -42,7 +42,8 @@ En PowerShell:
 El flujo completo es:
 
 1. Cargar institucion desde el padron (`config/institutions`).
-2. Cargar diccionario de keywords (`config/keywords`).
+2. Cargar el diccionario activo desde `config/keywords/manifest.yaml`. Por defecto
+   es `natural` v1.1.0.
 3. Generar consultas con `--indicator` o `--all-indicators`.
 4. Buscar videos con yt-dlp.
 5. Deduplicar por `video_id`.

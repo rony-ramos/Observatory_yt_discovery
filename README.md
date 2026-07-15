@@ -78,6 +78,10 @@ Si no hay API key y un video queda con `comment_count` desconocido, se rechaza c
 
 ## Indicadores
 
+El pipeline carga por defecto el diccionario `natural` v1.1.0 mediante
+`config/keywords/manifest.yaml`. Sus consultas usan frases completas y de alta
+intencion. La version 1.0.0 se conserva para reproducibilidad experimental.
+
 El diccionario activo incluye:
 
 - `ingreso`
@@ -197,7 +201,7 @@ python -m discovery --institution-id unr --require-national --all-indicators --m
 La suite `config/experiments/keyword-dictionary-1.0.0.yaml` compara cinco perfiles
 sin cambiar el diccionario activo:
 
-- `baseline` (`1.0.0`): diccionario actual.
+- `baseline` (`1.0.0`): diccionario historico original.
 - `natural` (`1.1.0`): frases naturales y de alta intencion.
 - `regional` (`1.2.0`): vocabulario administrativo y estudiantil local.
 - `local_context` (`1.3.0`): combina lenguaje natural y vocabulario regional.
