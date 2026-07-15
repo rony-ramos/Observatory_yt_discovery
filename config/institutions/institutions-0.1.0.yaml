@@ -148,3 +148,35 @@ institutions:
         channel_id: UC5p6qfmUMpy3xB1c_afImhg
         url: https://www.youtube.com/@uanlred
         verification_status: verified
+
+  - id: unap_puno
+    name: Universidad Nacional del Altiplano de Puno
+    country: PE
+    aliases:
+      - UNA Puno
+      - UNAP Puno
+      - Universidad Nacional del Altiplano
+      - Universidad del Altiplano Puno
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: verified
+      sources:
+        - criterion: national_and_licensed
+          url: https://es.wikipedia.org/wiki/Universidad_Nacional_del_Altiplano_de_Puno
+          note: Public national university founded in Puno; current institutional denomination established by Peruvian university law context.
+        - criterion: licensed
+          url: https://es.wikipedia.org/wiki/Universidad_Nacional_del_Altiplano_de_Puno
+          note: Institutional license granted by SUNEDU through Resolution 101-2017-SUNEDU/CD.
+        - criterion: qs_ranked
+          url: https://www.topuniversities.com/latin-america-caribbean-overall?countries=pe&page=1
+          note: Listed in QS Latin America and the Caribbean regional rankings for Peru.
+        - criterion: student_count
+          url: https://de.wikipedia.org/wiki/Universidad_Nacional_del_Altiplano_de_Puno
+          note: Reference profile reports 18,941 students.
+    official_channels:
+      - name: Universidad Nacional del Altiplano de Puno
+        channel_id: UCEta0e663FgxvYgCABhGl6w
+        url: https://www.youtube.com/@UNA_Puno
+        verification_status: verified
