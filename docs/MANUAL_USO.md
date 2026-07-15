@@ -191,6 +191,21 @@ Si no se puede conocer el conteo de comentarios, se rechaza como:
 comment_count_unknown
 ```
 
+### `--source-country-policy`
+
+Controla si el pais declarado por el canal debe coincidir con el pais de la
+universidad. Para excluir fuentes extranjeras usar:
+
+```bat
+--source-country-policy strict
+```
+
+En modo `strict`, un canal de otro pais se rechaza como
+`source_country_mismatch` y un canal sin pais declarado como
+`source_country_unknown`. La validacion usa `channel.snippet.country` de YouTube
+Data API, por lo que se requiere `YOUTUBE_API_KEY` para canales de terceros. Los
+canales oficiales verificados en el padron se consideran evidencia local.
+
 ### `--metadata-workers`
 
 Cantidad de validaciones de metadata en paralelo.
@@ -415,6 +430,9 @@ En `videos.csv` y `rejected.csv`:
 - `institution_match`: `True` si menciona institucion o alias.
 - `matched_aliases`: alias que hicieron match.
 - `channel_classification`: `official`, `third_party` o `unclassified`.
+- `channel_country`: codigo de pais declarado por el canal.
+- `source_country_match`: indica si coincide con el pais de la universidad.
+- `source_country_evidence`: origen de la evidencia usada para validar el pais.
 - `query_ids`: IDs de consultas que encontraron el video.
 - `search_queries`: consultas exactas que encontraron el video.
 - `keywords`: keywords usadas.

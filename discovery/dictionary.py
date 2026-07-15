@@ -36,6 +36,9 @@ class KeywordVariant:
     intents: tuple[str, ...]
     status: str
     weight: float
+    query_kind: str = "single"
+    combination_id: str | None = None
+    combines: tuple[str, ...] = ()
 
 
 class KeywordDictionary:
@@ -46,6 +49,8 @@ class KeywordDictionary:
         self.country_codes = tuple(item["code"] for item in data["countries"])
         self.intent_ids = tuple(item["id"] for item in data["intents"])
         self.indicator_ids = tuple(item["id"] for item in data["indicators"])
+        experiment = data.get("experiment_profile") or {}
+        self.experiment_profile_id = experiment.get("id")
         self.concept_to_indicator = {
             concept["id"]: indicator["id"]
             for indicator in data["indicators"]
@@ -126,6 +131,9 @@ class KeywordDictionary:
                 continue
             if concept_set and term["concept"] not in concept_set:
                 continue
+            term_countries = set(term.get("countries") or ())
+            if term_countries and country not in term_countries:
+                continue
             if term["status"] not in status_set:
                 continue
             if intent_set and not intent_set.intersection(term["intents"]):
@@ -152,7 +160,11 @@ class KeywordDictionary:
                             intents=tuple(term["intents"]),
                             status=term["status"],
                             weight=float(term["search_weight"]),
+                            query_kind=str(term.get("query_kind", "single")),
+                            combination_id=(
+                                term["id"] if term.get("query_kind") == "combination" else None
+                            ),
+                            combines=tuple(term.get("combines") or ()),
                         )
                     )
         return variants
-

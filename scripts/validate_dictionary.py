@@ -132,6 +132,7 @@ def validate_dictionary(data: dict[str, Any]) -> dict[str, int]:
 
     terms = require_list(data, "terms")
     term_ids: list[str] = []
+    combination_references: list[tuple[str, list[str]]] = []
     for term in terms:
         if not isinstance(term, dict):
             raise ValidationError("Cada termino debe ser un objeto.")
@@ -151,6 +152,29 @@ def validate_dictionary(data: dict[str, Any]) -> dict[str, int]:
             raise ValidationError(f"{term_id}: estado desconocido {term.get('status')!r}.")
         if term.get("provenance") not in provenance_ids:
             raise ValidationError(f"{term_id}: procedencia desconocida.")
+
+        restricted_countries = term.get("countries", [])
+        if not isinstance(restricted_countries, list):
+            raise ValidationError(f"{term_id}: countries debe ser una lista.")
+        unknown_restricted_countries = set(restricted_countries) - country_codes
+        if unknown_restricted_countries:
+            raise ValidationError(
+                f"{term_id}: countries contiene paises desconocidos: "
+                f"{sorted(unknown_restricted_countries)}"
+            )
+
+        query_kind = term.get("query_kind", "single")
+        if query_kind not in {"single", "combination"}:
+            raise ValidationError(f"{term_id}: query_kind desconocido {query_kind!r}.")
+        combines = term.get("combines", [])
+        if query_kind == "combination":
+            if not isinstance(combines, list) or len(combines) < 2:
+                raise ValidationError(
+                    f"{term_id}: una combinacion requiere al menos dos terminos."
+                )
+            combination_references.append((term_id, combines))
+        elif combines:
+            raise ValidationError(f"{term_id}: combines requiere query_kind=combination.")
 
         weight = term.get("search_weight")
         if not isinstance(weight, (int, float)) or not 0 <= weight <= 1:
@@ -191,6 +215,12 @@ def validate_dictionary(data: dict[str, Any]) -> dict[str, int]:
                 )
 
     term_id_set = unique_values(term_ids, "Terminos")
+    for combination_id, references in combination_references:
+        unknown_terms = set(references) - term_id_set
+        if unknown_terms:
+            raise ValidationError(
+                f"{combination_id}: combina terminos desconocidos: {sorted(unknown_terms)}"
+            )
 
     rules = require_list(data, "ambiguity_rules")
     rule_ids: list[str] = []

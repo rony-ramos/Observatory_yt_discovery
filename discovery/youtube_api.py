@@ -19,7 +19,9 @@ class YouTubeVideoMetadata:
 
 
 class YouTubeVideoApiClient:
-    ENDPOINT = "https://www.googleapis.com/youtube/v3/videos"
+    VIDEO_ENDPOINT = "https://www.googleapis.com/youtube/v3/videos"
+    CHANNEL_ENDPOINT = "https://www.googleapis.com/youtube/v3/channels"
+    ENDPOINT = VIDEO_ENDPOINT
     BATCH_SIZE = 50
 
     def __init__(self, api_key: str, *, timeout: float = 30.0) -> None:
@@ -57,7 +59,7 @@ class YouTubeVideoApiClient:
                 "fields": "items(id,snippet/publishedAt,statistics/commentCount)",
             }
         )
-        request_url = f"{self.ENDPOINT}?{query}"
+        request_url = f"{self.VIDEO_ENDPOINT}?{query}"
         try:
             with urlopen(request_url, timeout=self.timeout) as response:
                 payload = json.loads(response.read().decode("utf-8"))
@@ -88,6 +90,53 @@ class YouTubeVideoApiClient:
                 upload_date=_to_upload_date(published_at),
             )
         return metadata
+
+    def fetch_channel_countries(
+        self, channel_ids: list[str]
+    ) -> dict[str, str | None]:
+        countries: dict[str, str | None] = {}
+        unique_ids = list(dict.fromkeys(channel_ids))
+        for start in range(0, len(unique_ids), self.BATCH_SIZE):
+            batch = unique_ids[start : start + self.BATCH_SIZE]
+            countries.update(self._fetch_channel_countries_batch(batch))
+        return countries
+
+    def _fetch_channel_countries_batch(
+        self, channel_ids: list[str]
+    ) -> dict[str, str | None]:
+        if not channel_ids:
+            return {}
+
+        query = urlencode(
+            {
+                "part": "snippet",
+                "id": ",".join(channel_ids),
+                "key": self.api_key,
+                "fields": "items(id,snippet/country)",
+            }
+        )
+        request_url = f"{self.CHANNEL_ENDPOINT}?{query}"
+        try:
+            with urlopen(request_url, timeout=self.timeout) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")
+            raise YouTubeApiError(f"YouTube API HTTP {exc.code}: {detail}") from exc
+        except (URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise YouTubeApiError(f"No se pudo consultar YouTube API: {exc}") from exc
+
+        countries = {channel_id: None for channel_id in channel_ids}
+        for item in payload.get("items") or []:
+            if not isinstance(item, dict):
+                continue
+            channel_id = item.get("id")
+            country = (item.get("snippet") or {}).get("country")
+            if not isinstance(channel_id, str):
+                continue
+            countries[channel_id] = (
+                country.upper() if isinstance(country, str) and country else None
+            )
+        return countries
 
 
 def _to_upload_date(value: object) -> str | None:

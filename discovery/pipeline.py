@@ -31,6 +31,9 @@ QUERY_COLUMNS = (
     "intents",
     "score",
     "dictionary_version",
+    "query_kind",
+    "combination_id",
+    "combines",
 )
 
 VIDEO_COLUMNS = (
@@ -48,6 +51,9 @@ VIDEO_COLUMNS = (
     "institution_match",
     "matched_aliases",
     "channel_classification",
+    "channel_country",
+    "source_country_match",
+    "source_country_evidence",
     "metadata_error",
     "live_status",
     "best_rank",
@@ -58,6 +64,8 @@ VIDEO_COLUMNS = (
     "indicators",
     "concepts",
     "term_ids",
+    "query_kinds",
+    "combination_ids",
 )
 
 REJECTED_COLUMNS = (*VIDEO_COLUMNS, "rejection_reason")
@@ -154,6 +162,8 @@ def _merge_hit(
             "indicators": set(),
             "concepts": set(),
             "term_ids": set(),
+            "query_kinds": set(),
+            "combination_ids": set(),
         }
 
     video = videos[hit.video_id]
@@ -168,6 +178,9 @@ def _merge_hit(
     video["indicators"].add(query.indicator)
     video["concepts"].add(query.concept)
     video["term_ids"].add(query.term_id)
+    video["query_kinds"].add(query.query_kind)
+    if query.combination_id:
+        video["combination_ids"].add(query.combination_id)
 
 
 def _write_videos(
@@ -185,15 +198,19 @@ def _write_videos(
             "indicators",
             "concepts",
             "term_ids",
+            "query_kinds",
+            "combination_ids",
         ):
             row[field] = ";".join(sorted(row[field]))
         rows.append(row)
 
     date_priority = {True: 0, None: 1, False: 2}
     institution_priority = {True: 0, None: 1, False: 2}
+    source_country_priority = {True: 0, None: 1, False: 2}
     rows.sort(
         key=lambda item: (
             institution_priority[item.get("institution_match")],
+            source_country_priority[item.get("source_country_match")],
             date_priority[item.get("published_after_match")],
             -item["occurrences"],
             item["best_rank"],
@@ -247,6 +264,7 @@ def _hit_from_video(video: dict[str, Any]) -> SearchHit:
         upload_date=video.get("upload_date"),
         live_status=video.get("live_status"),
         description=video.get("description"),
+        channel_country=video.get("channel_country"),
     )
 
 
@@ -314,6 +332,17 @@ def _classify_channel(
     return "third_party" if channel_name else "unclassified"
 
 
+def _source_country_match(
+    video: dict[str, Any], target_country: str
+) -> tuple[bool | None, str]:
+    if video.get("channel_classification") == "official":
+        return True, "official_channel_registry"
+    channel_country = video.get("channel_country")
+    if not isinstance(channel_country, str) or not channel_country.strip():
+        return None, "unknown"
+    return channel_country.upper() == target_country.upper(), "channel_metadata"
+
+
 def run_search_pipeline(
     *,
     queries: list[SearchQuery],
@@ -329,6 +358,7 @@ def run_search_pipeline(
     published_after: date | None = None,
     date_policy: str = "prefer",
     institution_policy: str = "strict",
+    source_country_policy: str = "off",
     metadata_min_sleep: float = 2.5,
     metadata_max_sleep: float = 5.0,
     metadata_workers: int = 1,
@@ -339,6 +369,9 @@ def run_search_pipeline(
     institution_registry_version: str | None = None,
     institution_id: str | None = None,
     institution_eligibility: dict[str, Any] | None = None,
+    experiment_id: str | None = None,
+    experiment_scenario: str | None = None,
+    experiment_profile: str | None = None,
     official_channel_ids: list[str] | None = None,
     official_channel_names: list[str] | None = None,
     searcher: YtDlpSearcher | None = None,
@@ -360,6 +393,8 @@ def run_search_pipeline(
         raise ValueError("date_policy debe ser 'prefer' o 'strict'.")
     if institution_policy not in {"strict", "prefer", "off"}:
         raise ValueError("institution_policy debe ser 'strict', 'prefer' u 'off'.")
+    if source_country_policy not in {"strict", "prefer", "off"}:
+        raise ValueError("source_country_policy debe ser 'strict', 'prefer' u 'off'.")
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     indicator_slug = "-".join(sorted({query.indicator for query in queries}))
@@ -367,6 +402,9 @@ def run_search_pipeline(
     run_dir.mkdir(parents=True, exist_ok=False)
     metadata_skip_cache = metadata_skip_cache or output_root / "_metadata_skip_cache.json"
     skip_cache = _load_metadata_skip_cache(metadata_skip_cache)
+    active_api_client = youtube_api_client or (
+        YouTubeVideoApiClient(youtube_api_key) if youtube_api_key else None
+    )
 
     _write_queries(run_dir / "queries.csv", queries)
     manifest: dict[str, Any] = {
@@ -375,6 +413,9 @@ def run_search_pipeline(
         "started_at": _utc_now(),
         "completed_at": None,
         "dictionary_version": queries[0].dictionary_version,
+        "experiment_id": experiment_id,
+        "experiment_scenario": experiment_scenario,
+        "experiment_profile": experiment_profile,
         "institution_registry_version": institution_registry_version,
         "institution_id": institution_id,
         "institution_eligibility": institution_eligibility,
@@ -398,11 +439,20 @@ def run_search_pipeline(
         "institution_policy": institution_policy,
         "institution_matched": 0,
         "institution_rejected": 0,
+        "source_country_policy": source_country_policy,
+        "source_country_target": country,
+        "channel_country_api_enabled": active_api_client is not None,
+        "channel_country_api_checked": 0,
+        "channel_country_api_filled": 0,
+        "source_country_matched": 0,
+        "source_country_mismatched": 0,
+        "source_country_unknown": 0,
+        "source_country_rejected": 0,
         "metadata_workers": metadata_workers,
         "metadata_skip_cache": str(metadata_skip_cache),
         "metadata_skipped_cached": 0,
         "min_comments": min_comments,
-        "comment_count_api_enabled": bool(youtube_api_key or youtube_api_client),
+        "comment_count_api_enabled": active_api_client is not None,
         "comment_count_api_checked": 0,
         "comment_count_api_filled": 0,
         "upload_date_api_filled": 0,
@@ -444,6 +494,9 @@ def run_search_pipeline(
                         "indicator": query.indicator,
                         "concept": query.concept,
                         "term_id": query.term_id,
+                        "query_kind": query.query_kind,
+                        "combination_id": query.combination_id,
+                        "combines": list(query.combines),
                         "rank": rank,
                         **asdict(hit),
                     }
@@ -568,12 +621,9 @@ def run_search_pipeline(
                     or (published_after and not video.get("upload_date"))
                 )
             ]
-            if missing_api_ids and (youtube_api_key or youtube_api_client):
+            if missing_api_ids and active_api_client:
                 try:
-                    api_client = youtube_api_client or YouTubeVideoApiClient(
-                        youtube_api_key or ""
-                    )
-                    video_metadata = api_client.fetch_video_metadata(missing_api_ids)
+                    video_metadata = active_api_client.fetch_video_metadata(missing_api_ids)
                 except (ValueError, YouTubeApiError) as exc:
                     manifest["errors"].append(
                         {
@@ -667,6 +717,78 @@ def run_search_pipeline(
                 if video_id not in rejected_videos
             }
         manifest["institution_rejected"] = len(rejected_videos)
+
+        if source_country_policy != "off":
+            missing_channel_ids = sorted(
+                {
+                    video["channel_id"]
+                    for video in videos.values()
+                    if video.get("channel_id")
+                    and not video.get("channel_country")
+                    and video.get("channel_classification") != "official"
+                }
+            )
+            if missing_channel_ids and active_api_client:
+                try:
+                    channel_countries = active_api_client.fetch_channel_countries(
+                        missing_channel_ids
+                    )
+                except (ValueError, YouTubeApiError) as exc:
+                    manifest["errors"].append(
+                        {
+                            "stage": "youtube_channel_api",
+                            "message": str(exc),
+                        }
+                    )
+                else:
+                    manifest["channel_country_api_checked"] = len(missing_channel_ids)
+                    manifest["channel_country_api_filled"] = sum(
+                        country_code is not None
+                        for country_code in channel_countries.values()
+                    )
+                    for video in videos.values():
+                        channel_id = video.get("channel_id")
+                        if channel_id and not video.get("channel_country"):
+                            video["channel_country"] = channel_countries.get(channel_id)
+
+            for video in videos.values():
+                match, evidence = _source_country_match(video, country)
+                video["source_country_match"] = match
+                video["source_country_evidence"] = evidence
+            manifest["source_country_matched"] = sum(
+                video["source_country_match"] is True for video in videos.values()
+            )
+            manifest["source_country_mismatched"] = sum(
+                video["source_country_match"] is False for video in videos.values()
+            )
+            manifest["source_country_unknown"] = sum(
+                video["source_country_match"] is None for video in videos.values()
+            )
+
+            if source_country_policy == "strict":
+                rejected_by_country = {
+                    video_id: {
+                        **video,
+                        "rejection_reason": (
+                            "source_country_mismatch"
+                            if video["source_country_match"] is False
+                            else "source_country_unknown"
+                        ),
+                    }
+                    for video_id, video in videos.items()
+                    if video["source_country_match"] is not True
+                }
+                manifest["source_country_rejected"] = len(rejected_by_country)
+                rejected_videos.update(rejected_by_country)
+                videos = {
+                    video_id: video
+                    for video_id, video in videos.items()
+                    if video_id not in rejected_by_country
+                }
+        else:
+            for video in videos.values():
+                video["source_country_match"] = None
+                video["source_country_evidence"] = "off"
 
         if min_comments > 0:
             rejected_by_comments = {

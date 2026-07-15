@@ -111,7 +111,13 @@ python -m discovery --institution-id unr --require-national --all-indicators
 - Elegibilidad QS/licenciamiento: se activa con `--require-eligible`.
 - Fecha: por defecto prioriza videos posteriores a `2021-12-31`.
 - Institucion: por defecto `--institution-policy strict`, descarta videos que no mencionan la institucion o alias en metadata.
+- Pais de la fuente: por defecto `--source-country-policy strict`, acepta solo canales asociados al mismo pais de la universidad y rechaza pais desconocido.
 - Comentarios: por defecto `--min-comments 75`, descarta videos con menos comentarios o conteo desconocido.
+
+El pais de la fuente se obtiene de `channel.snippet.country` mediante YouTube Data
+API. Es un dato declarado por el canal y no una prueba legal de nacionalidad. Los
+canales oficiales verificados de la universidad se consideran evidencia local. En
+modo `strict` se requiere `YOUTUBE_API_KEY` para validar canales de terceros.
 
 Para excluir estrictamente videos antiguos:
 
@@ -147,6 +153,9 @@ En `videos.csv` y `rejected.csv`:
 - `published_after_match`: `True` si cumple la fecha configurada.
 - `institution_match`: `True` si la metadata menciona la institucion o alias.
 - `channel_classification`: `official`, `third_party` o `unclassified`.
+- `channel_country`: codigo de pais declarado por el canal.
+- `source_country_match`: `True` solo cuando coincide con el pais de la universidad.
+- `source_country_evidence`: `channel_metadata`, `official_channel_registry` o `unknown`.
 - `query_ids`: IDs de consultas que encontraron el video.
 - `search_queries`: consultas exactas que encontraron el video.
 - `keywords`: keywords del diccionario usadas en esas consultas.
@@ -182,3 +191,61 @@ Corrida amplia:
 ```bat
 python -m discovery --institution-id unr --require-national --all-indicators --max-queries 128 --results-per-query 40 --min-comments 75 --metadata-workers 2
 ```
+
+## Experimentos de diccionario
+
+La suite `config/experiments/keyword-dictionary-1.0.0.yaml` compara cinco perfiles
+sin cambiar el diccionario activo:
+
+- `baseline` (`1.0.0`): diccionario actual.
+- `natural` (`1.1.0`): frases naturales y de alta intencion.
+- `regional` (`1.2.0`): vocabulario administrativo y estudiantil local.
+- `local_context` (`1.3.0`): combina lenguaje natural y vocabulario regional.
+- `combined` (`1.4.0`): integra las estrategias y combinaciones curadas.
+
+Validar la suite:
+
+```bat
+python scripts\validate_experiment.py
+```
+
+Generar los cinco planes para la UNR sin conectarse a YouTube:
+
+```bat
+python -m discovery.experiment --institution-id unr --require-national
+```
+
+Ejecutar la comparacion controlada. Cada version usa 84 consultas y 15 resultados
+por consulta:
+
+```bat
+set YOUTUBE_API_KEY=TU_API_KEY
+python -m discovery.experiment --institution-id unr --require-national --execute --source-country-policy strict --metadata-workers 2
+```
+
+Probar solamente la version combinada con 128 consultas, tres variantes por termino
+y mas consultas combinadas:
+
+```bat
+python -m discovery.experiment --institution-id unr --require-national --scenario expanded --profile combined --execute --metadata-workers 2
+```
+
+Sustituye `combined` por el perfil que gane la comparacion controlada.
+
+Para planificar o ejecutar un solo perfil del escenario controlado:
+
+```bat
+python -m discovery.experiment --institution-id unr --require-national --profile regional
+```
+
+Cada experimento se guarda en `experiments/` e incluye:
+
+- `experiment.json`: configuracion y corridas realizadas.
+- `summary.csv`: comparacion de volumen, precision institucional, comentarios y seleccion.
+- Una carpeta por perfil con `queries.csv`, `run.json` y las salidas normales.
+- `video_comparison.csv`: solapamiento de videos entre perfiles al ejecutar busquedas.
+- `review_candidates.csv`: videos seleccionados con columnas para validacion manual.
+
+Las consultas combinadas quedan identificadas mediante `query_kind`,
+`combination_id` y `combines`. Son combinaciones declaradas en la suite, no una
+mezcla automatica de todas las keywords.

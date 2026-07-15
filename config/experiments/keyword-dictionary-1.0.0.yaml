@@ -1,0 +1,514 @@
+schema_version: "1.0"
+
+experiment:
+  id: keyword_dictionary_comparison_v1
+  label: Comparacion controlada de diccionarios de busqueda
+  base_dictionary: ../keywords/keywords-1.0.0.yaml
+  baseline_profile: baseline
+  description: >-
+    Compara cinco hipotesis lexicas con presupuestos equivalentes. Los perfiles
+    derivados no modifican el diccionario activo del pipeline.
+
+profiles:
+  - id: baseline
+    version: "1.0.0"
+    label: Diccionario actual
+    hypothesis: Linea base sin cambios.
+
+  - id: natural
+    version: "1.1.0"
+    label: Consultas naturales
+    hypothesis: Frases completas y de alta intencion reducen coincidencias incidentales.
+    term_overrides:
+      - id: ingreso.matricula.inscripcion
+        variants:
+          global:
+            - como hacer la matricula universitaria
+            - inscripcion a materias universitarias
+            - requisitos para matricularse
+            - proceso de inscripcion universitaria
+          AR:
+            - como inscribirse a materias
+            - inscripcion a cursadas
+            - anotarse a materias de la carrera
+            - problemas para inscribirse a materias
+          MX:
+            - como inscribir materias
+            - proceso de reinscripcion universitaria
+            - problemas con la inscripcion de materias
+            - requisitos para reinscribirse
+
+      - id: ingreso.admision.postulacion
+        variants:
+          global:
+            - como ingresar a la universidad
+            - proceso de admision universitaria
+            - como postular a la universidad
+            - experiencia con el proceso de ingreso
+          AR:
+            - como ingresar
+            - experiencia con el curso de ingreso
+            - proceso para estudiantes ingresantes
+            - dificultades del ingreso universitario
+          MX:
+            - como entrar
+            - convocatoria de nuevo ingreso
+            - experiencia con el examen de ingreso
+            - proceso para aspirantes universitarios
+
+      - id: dinero.costo.arancel
+        variants:
+          global:
+            - cuanto cuesta estudiar
+            - costo de estudiar una carrera
+            - arancel universitario
+            - gastos para estudiar en la universidad
+          AR:
+            - cuanto cuesta estudiar
+            - universidad gratuita o arancelada
+            - costo de vida para estudiar
+            - gastos de un estudiante universitario
+          MX:
+            - cuanto cuesta estudiar
+            - costo de una carrera universitaria
+            - colegiatura y gastos universitarios
+            - cuanto se paga por semestre
+
+      - id: programas.carrera.oferta
+        variants:
+          global:
+            - que carreras se pueden estudiar
+            - oferta de carreras universitarias
+            - carreras y salidas profesionales
+            - como elegir una carrera
+
+      - id: programas.carrera.plan
+        variants:
+          global:
+            - plan de estudios de la carrera
+            - materias de la carrera
+            - duracion y materias de la carrera
+            - opinion sobre el plan de estudios
+          AR:
+            - plan de carrera y materias
+            - materias obligatorias y electivas
+            - dificultad de las materias
+            - como son las materias de la carrera
+          MX:
+            - mapa curricular de la carrera
+            - materias por semestre
+            - dificultad del plan de estudios
+            - como es el plan de estudios
+
+      - id: calidad.docente.profesores
+        variants:
+          global:
+            - como son los profesores
+            - opinion sobre los profesores
+            - metodo de ensenanza de los docentes
+            - experiencia con profesores universitarios
+          MX:
+            - opinion sobre los maestros
+            - como ensenan los profesores
+            - experiencia con maestros universitarios
+            - calidad de los profesores
+
+      - id: vida_campus.infraestructura.campus
+        variants:
+          global:
+            - recorrido por la universidad
+            - como son las instalaciones
+            - tour por las facultades
+            - experiencia en el campus universitario
+
+      - id: experiencia.modalidad.formato
+        variants:
+          global:
+            - modalidad de cursado
+            - como son las clases
+            - experiencia con clases virtuales
+            - estudiar presencial o virtual
+
+      - id: experiencia.testimonio.relato
+        variants:
+          global:
+            - experiencia de estudiantes
+            - primer ano en la universidad
+            - dia como estudiante universitario
+            - experiencia estudiando una carrera
+
+      - id: experiencia.testimonio.valoracion
+        variants:
+          global:
+            - vale la pena estudiar aqui
+            - ventajas y desventajas de estudiar
+            - problemas reales de estudiantes
+            - opinion honesta sobre la universidad
+
+  - id: regional
+    version: "1.2.0"
+    label: Contexto regional
+    hypothesis: El vocabulario administrativo y estudiantil local mejora la cobertura.
+    term_overrides:
+      - id: ingreso.matricula.inscripcion
+        variants:
+          AR:
+            - inscripcion a cursadas
+            - inscripcion a comisiones
+            - preinscripcion universitaria
+            - autogestion de materias
+          MX:
+            - inscripcion de materias
+            - reinscripcion universitaria
+            - alta de materias
+            - registro academico
+
+      - id: ingreso.admision.postulacion
+        variants:
+          AR:
+            - curso de ingreso universitario
+            - informacion para ingresantes
+            - preinscripcion a la universidad
+            - ingreso para estudiantes extranjeros
+          MX:
+            - convocatoria de nuevo ingreso
+            - registro de aspirantes
+            - proceso de admision universitaria
+            - ingreso para estudiantes foraneos
+
+      - id: ingreso.admision.requisitos
+        variants:
+          AR:
+            - requisitos para ingresantes
+            - documentacion de preinscripcion
+            - fechas del curso de ingreso
+            - requisitos para extranjeros
+          MX:
+            - requisitos de la convocatoria
+            - documentos para aspirantes
+            - puntaje del examen de admision
+            - fechas de nuevo ingreso
+
+      - id: dinero.costo.arancel
+        variants:
+          AR:
+            - universidad publica gratuita
+            - universidad no arancelada
+            - costo de vida estudiantil
+            - gastos para estudiar en otra ciudad
+          MX:
+            - costo por semestre
+            - pago de colegiatura
+            - cuotas escolares
+            - gastos de estudiante foraneo
+
+      - id: dinero.beca.apoyo
+        variants:
+          AR:
+            - becas de bienestar estudiantil
+            - beca de alimentos
+            - beca de transporte
+            - ayuda economica para estudiantes
+          MX:
+            - beca de manutencion
+            - apoyo para estudiantes
+            - beca de transporte
+            - convocatoria de becas
+
+      - id: programas.carrera.plan
+        variants:
+          AR:
+            - plan de carrera
+            - materias correlativas
+            - materias obligatorias y electivas
+            - regularidad de materias
+          MX:
+            - mapa curricular
+            - materias optativas
+            - seriacion de materias
+            - plan por semestres
+
+      - id: vida_campus.infraestructura.servicios
+        variants:
+          AR:
+            - comedor universitario
+            - residencia estudiantil
+            - boleto estudiantil
+            - servicios de bienestar estudiantil
+          MX:
+            - transporte universitario
+            - residencia para estudiantes
+            - comedor universitario
+            - servicios para foraneos
+
+      - id: vida_campus.vida_universitaria.actividades
+        variants:
+          AR:
+            - centro de estudiantes
+            - agrupaciones estudiantiles
+            - extension universitaria
+            - deportes universitarios
+          MX:
+            - grupos estudiantiles
+            - actividades extracurriculares
+            - servicio social universitario
+            - deportes universitarios
+
+  - id: local_context
+    version: "1.3.0"
+    label: Contexto local
+    hypothesis: La combinacion de lenguaje natural y vocabulario regional prioriza voces locales.
+    inherits: [natural, regional]
+    additional_terms:
+      - id: ingreso.admision.portugues
+        indicator: ingreso
+        concept: admision
+        canonical: ingresso universitario em portugues
+        countries: [AR]
+        variants:
+          global:
+            - como ingressar na universidade argentina
+            - forma de ingresso na universidade
+            - documentos para estudar na argentina
+            - ingresso de brasileiros na universidade
+        intents: [informational, procedural, experiential]
+        source_types: [third_party]
+        status: rejected
+        provenance: experiment_local_context
+        search_weight: 0.95
+
+      - id: dinero.costo.portugues
+        indicator: dinero
+        concept: costo
+        canonical: custos para estudar em portugues
+        countries: [AR]
+        variants:
+          global:
+            - quanto custa estudar na argentina
+            - custo de vida para estudantes
+            - gastos para cursar medicina
+            - universidade argentina e gratuita
+        intents: [informational, experiential, comparison]
+        source_types: [third_party]
+        status: rejected
+        provenance: experiment_local_context
+        search_weight: 0.95
+
+      - id: programas.carrera.portugues
+        indicator: programas
+        concept: carrera
+        canonical: cursos universitarios em portugues
+        countries: [AR]
+        variants:
+          global:
+            - estudar medicina na argentina
+            - grade curricular de medicina
+            - materias do curso de medicina
+            - como e o curso de medicina
+        intents: [informational, experiential, opinion]
+        source_types: [third_party]
+        status: rejected
+        provenance: experiment_local_context
+        search_weight: 0.9
+
+      - id: calidad.docente.portugues
+        indicator: calidad
+        concept: docente
+        canonical: ensino universitario em portugues
+        countries: [AR]
+        variants:
+          global:
+            - metodo de ensino da universidade
+            - como sao as aulas de medicina
+            - opiniao sobre os professores
+            - qualidade do ensino universitario
+        intents: [informational, experiential, opinion]
+        source_types: [third_party]
+        status: rejected
+        provenance: experiment_local_context
+        search_weight: 0.9
+
+      - id: vida_campus.infraestructura.portugues
+        indicator: vida_campus
+        concept: infraestructura
+        canonical: campus universitario em portugues
+        countries: [AR]
+        variants:
+          global:
+            - tour pela universidade
+            - como e a faculdade de medicina
+            - estrutura da universidade
+            - vida no campus universitario
+        intents: [informational, experiential, opinion]
+        source_types: [third_party]
+        status: rejected
+        provenance: experiment_local_context
+        search_weight: 0.85
+
+      - id: experiencia.testimonio.portugues
+        indicator: experiencia
+        concept: testimonio
+        canonical: experiencia estudantil em portugues
+        countries: [AR]
+        variants:
+          global:
+            - experiencia estudando na argentina
+            - rotina de estudante de medicina
+            - vale a pena estudar na argentina
+            - dificuldades de estudar medicina
+        intents: [experiential, opinion, problem]
+        source_types: [third_party]
+        status: rejected
+        provenance: experiment_local_context
+        search_weight: 1.0
+
+  - id: combined
+    version: "1.4.0"
+    label: Estrategia combinada
+    hypothesis: La combinacion curada conserva precision y agrega cobertura contextual.
+    inherits: [local_context]
+    additional_terms:
+      - id: ingreso.admision.experiencia_combo
+        indicator: ingreso
+        concept: admision
+        canonical: experiencia durante el ingreso
+        query_kind: combination
+        combines:
+          - ingreso.admision.postulacion
+          - experiencia.testimonio.relato
+        variants:
+          global:
+            - experiencia con el proceso de ingreso
+            - dificultades para ingresar a la universidad
+            - opinion sobre el examen de admision
+          AR:
+            - experiencia con el curso de ingreso
+            - como fue el ingreso universitario
+            - dificultades de estudiantes ingresantes
+          MX:
+            - experiencia con el examen de ingreso
+            - dificultades del proceso de admision
+            - opinion de aspirantes universitarios
+        intents: [experiential, opinion, problem]
+        source_types: [third_party]
+        status: validated
+        provenance: experiment_combined
+        search_weight: 1.0
+
+      - id: dinero.costo.vida_estudiantil_combo
+        indicator: dinero
+        concept: costo
+        canonical: costo y experiencia estudiantil
+        query_kind: combination
+        combines:
+          - dinero.costo.arancel
+          - experiencia.testimonio.relato
+        variants:
+          global:
+            - costo de vida como estudiante
+            - gastos reales para estudiar una carrera
+            - experiencia pagando los estudios
+          AR:
+            - costo de vida para estudiar
+            - alquiler y gastos de estudiantes
+            - experiencia estudiando lejos de casa
+          MX:
+            - gastos de un estudiante foraneo
+            - colegiatura y costo de vida
+            - experiencia pagando la universidad
+        intents: [informational, experiential, problem]
+        source_types: [third_party]
+        status: validated
+        provenance: experiment_combined
+        search_weight: 1.0
+
+      - id: programas.carrera.experiencia_combo
+        indicator: programas
+        concept: carrera
+        canonical: experiencia con la carrera
+        query_kind: combination
+        combines:
+          - programas.carrera.oferta
+          - experiencia.testimonio.relato
+        variants:
+          global:
+            - experiencia estudiando una carrera
+            - opinion sobre el plan de estudios
+            - dificultad de las materias de la carrera
+          AR:
+            - experiencia estudiando la carrera
+            - opinion sobre el plan de carrera
+            - dificultad de materias y correlativas
+          MX:
+            - experiencia estudiando la licenciatura
+            - opinion sobre el mapa curricular
+            - dificultad de materias por semestre
+        intents: [experiential, opinion, problem]
+        source_types: [third_party]
+        status: validated
+        provenance: experiment_combined
+        search_weight: 1.0
+
+      - id: calidad.docente.experiencia_combo
+        indicator: calidad
+        concept: docente
+        canonical: experiencia con la ensenanza
+        query_kind: combination
+        combines:
+          - calidad.docente.profesores
+          - experiencia.testimonio.valoracion
+        variants:
+          global:
+            - experiencia con los profesores
+            - opinion sobre la forma de ensenar
+            - exigencia y calidad docente
+        intents: [experiential, opinion, problem]
+        source_types: [third_party]
+        status: validated
+        provenance: experiment_combined
+        search_weight: 0.95
+
+      - id: vida_campus.vida_universitaria.experiencia_combo
+        indicator: vida_campus
+        concept: vida_universitaria
+        canonical: experiencia de vida universitaria
+        query_kind: combination
+        combines:
+          - vida_campus.vida_universitaria.ambiente
+          - experiencia.testimonio.relato
+        variants:
+          global:
+            - experiencia de vida universitaria
+            - vida diaria de los estudiantes
+            - opinion sobre el ambiente universitario
+          AR:
+            - experiencia en la facultad
+            - vida estudiantil y centro de estudiantes
+            - ambiente entre estudiantes universitarios
+          MX:
+            - experiencia de estudiantes foraneos
+            - ambiente y actividades universitarias
+            - vida diaria dentro del campus
+        intents: [experiential, opinion, problem]
+        source_types: [third_party]
+        status: validated
+        provenance: experiment_combined
+        search_weight: 0.95
+
+scenarios:
+  - id: controlled
+    label: Comparacion equivalente de cinco versiones
+    profiles: [baseline, natural, regional, local_context, combined]
+    variants_per_term: 2
+    balance_by: term
+    max_queries: 84
+    results_per_query: 15
+
+  - id: expanded
+    label: Expansion del perfil ganador con mas variantes y combinaciones
+    profiles: [baseline, natural, regional, local_context, combined]
+    require_profile_selection: true
+    variants_per_term: 3
+    balance_by: term
+    max_queries: 128
+    results_per_query: 15

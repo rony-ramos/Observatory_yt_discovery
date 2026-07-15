@@ -262,15 +262,66 @@ class UploadDateApiFallbackSearcher:
         return hit
 
 
+class SourceCountrySearcher:
+    def search(self, query: str, max_results: int) -> list[SearchHit]:
+        return [
+            SearchHit(
+                video_id="arg123def45",
+                url="https://www.youtube.com/watch?v=arg123def45",
+                title="Experiencia estudiando en la UBA",
+                channel="Estudiante argentino",
+                channel_id="UC-ar",
+                duration=300,
+                view_count=1000,
+                comment_count=100,
+                upload_date="20240101",
+                live_status=None,
+                description="Universidad de Buenos Aires",
+            ),
+            SearchHit(
+                video_id="bra123def45",
+                url="https://www.youtube.com/watch?v=bra123def45",
+                title="Como estudar na UBA",
+                channel="Estudante brasileiro",
+                channel_id="UC-br",
+                duration=300,
+                view_count=1000,
+                comment_count=100,
+                upload_date="20240101",
+                live_status=None,
+                description="Universidad de Buenos Aires",
+            ),
+            SearchHit(
+                video_id="unk123def45",
+                url="https://www.youtube.com/watch?v=unk123def45",
+                title="Mi experiencia en la UBA",
+                channel="Canal sin pais",
+                channel_id="UC-unknown",
+                duration=300,
+                view_count=1000,
+                comment_count=100,
+                upload_date="20240101",
+                live_status=None,
+                description="Universidad de Buenos Aires",
+            ),
+        ][:max_results]
+
+    def enrich(self, hit: SearchHit) -> SearchHit:
+        return hit
+
+
 class FakeCommentApiClient:
     def __init__(
         self,
         counts: dict[str, int | None],
         upload_dates: dict[str, str | None] | None = None,
+        channel_countries: dict[str, str | None] | None = None,
     ) -> None:
         self.counts = counts
         self.upload_dates = upload_dates or {}
+        self.channel_countries = channel_countries or {}
         self.calls: list[list[str]] = []
+        self.channel_calls: list[list[str]] = []
 
     def fetch_comment_counts(self, video_ids: list[str]) -> dict[str, int | None]:
         return {
@@ -288,6 +339,15 @@ class FakeCommentApiClient:
                 upload_date=self.upload_dates.get(video_id),
             )
             for video_id in video_ids
+        }
+
+    def fetch_channel_countries(
+        self, channel_ids: list[str]
+    ) -> dict[str, str | None]:
+        self.channel_calls.append(channel_ids)
+        return {
+            channel_id: self.channel_countries.get(channel_id)
+            for channel_id in channel_ids
         }
 
 
@@ -663,6 +723,71 @@ class QueryPlannerTests(unittest.TestCase):
             self.assertEqual(1, manifest["upload_date_api_filled"])
             self.assertEqual("20240501", selected[0]["upload_date"])
             self.assertEqual("True", selected[0]["published_after_match"])
+
+    def test_strict_source_country_rejects_foreign_and_unknown_channels(self) -> None:
+        queries = plan_queries(
+            self.dictionary,
+            institution="Universidad de Buenos Aires",
+            aliases=["UBA"],
+            country="AR",
+            indicators=["experiencia"],
+            max_queries=1,
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            api_client = FakeCommentApiClient(
+                {},
+                channel_countries={
+                    "UC-ar": "AR",
+                    "UC-br": "BR",
+                    "UC-unknown": None,
+                },
+            )
+            run_dir = run_search_pipeline(
+                queries=queries,
+                institution="Universidad de Buenos Aires",
+                aliases=["UBA"],
+                country="AR",
+                results_per_query=3,
+                output_root=Path(temporary_directory),
+                searcher=SourceCountrySearcher(),
+                min_sleep=0,
+                max_sleep=0,
+                institution_policy="strict",
+                source_country_policy="strict",
+                min_comments=0,
+                youtube_api_client=api_client,
+                sleep=lambda _: None,
+            )
+
+            manifest = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+            with (run_dir / "videos.csv").open(
+                encoding="utf-8-sig", newline=""
+            ) as source:
+                selected = list(csv.DictReader(source))
+            with (run_dir / "rejected.csv").open(
+                encoding="utf-8-sig", newline=""
+            ) as source:
+                rejected = {
+                    row["video_id"]: row["rejection_reason"]
+                    for row in csv.DictReader(source)
+                }
+
+            self.assertEqual([["UC-ar", "UC-br", "UC-unknown"]], api_client.channel_calls)
+            self.assertEqual(["arg123def45"], [row["video_id"] for row in selected])
+            self.assertEqual("AR", selected[0]["channel_country"])
+            self.assertEqual("True", selected[0]["source_country_match"])
+            self.assertEqual(
+                {
+                    "bra123def45": "source_country_mismatch",
+                    "unk123def45": "source_country_unknown",
+                },
+                rejected,
+            )
+            self.assertEqual(1, manifest["source_country_matched"])
+            self.assertEqual(1, manifest["source_country_mismatched"])
+            self.assertEqual(1, manifest["source_country_unknown"])
+            self.assertEqual(2, manifest["source_country_rejected"])
 
     def test_metadata_skip_cache_prevents_rechecking_unavailable_video(self) -> None:
         queries = plan_queries(

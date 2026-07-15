@@ -21,6 +21,9 @@ class SearchQuery:
     intents: tuple[str, ...]
     score: float
     dictionary_version: str
+    query_kind: str = "single"
+    combination_id: str | None = None
+    combines: tuple[str, ...] = ()
 
     def as_row(self) -> dict[str, str | float]:
         return {
@@ -36,6 +39,9 @@ class SearchQuery:
             "intents": ";".join(self.intents),
             "score": round(self.score, 3),
             "dictionary_version": self.dictionary_version,
+            "query_kind": self.query_kind,
+            "combination_id": self.combination_id or "",
+            "combines": ";".join(self.combines),
         }
 
 
@@ -73,13 +79,20 @@ def _select_variants_per_term(
     return selected
 
 
-def _round_robin(candidates: list[SearchQuery], limit: int) -> list[SearchQuery]:
-    groups: dict[tuple[str, str], deque[SearchQuery]] = {}
+def _round_robin(
+    candidates: list[SearchQuery], limit: int, balance_by: str
+) -> list[SearchQuery]:
+    groups: dict[tuple[str, ...], deque[SearchQuery]] = {}
     for candidate in sorted(
         candidates,
         key=lambda item: (-item.score, item.indicator, item.concept, item.query),
     ):
-        groups.setdefault((candidate.indicator, candidate.concept), deque()).append(candidate)
+        key = (
+            (candidate.indicator, candidate.concept, candidate.term_id)
+            if balance_by == "term"
+            else (candidate.indicator, candidate.concept)
+        )
+        groups.setdefault(key, deque()).append(candidate)
 
     selected: list[SearchQuery] = []
     while groups and len(selected) < limit:
@@ -104,11 +117,14 @@ def plan_queries(
     statuses: Iterable[str] = ("seed", "validated"),
     variants_per_term: int = 2,
     max_queries: int = 24,
+    balance_by: str = "concept",
 ) -> list[SearchQuery]:
     if variants_per_term < 1:
         raise ValueError("variants_per_term debe ser mayor que cero.")
     if max_queries < 1:
         raise ValueError("max_queries debe ser mayor que cero.")
+    if balance_by not in {"concept", "term"}:
+        raise ValueError("balance_by debe ser 'concept' o 'term'.")
 
     institution_aliases = _unique_aliases(institution, aliases)
     if not institution_aliases:
@@ -149,9 +165,11 @@ def plan_queries(
                     intents=variant.intents,
                     score=variant.weight + locale_bonus + primary_alias_bonus,
                     dictionary_version=dictionary.version,
+                    query_kind=variant.query_kind,
+                    combination_id=variant.combination_id,
+                    combines=variant.combines,
                 )
             )
 
-    selected = _round_robin(candidates, max_queries)
+    selected = _round_robin(candidates, max_queries, balance_by)
     return [replace(item, query_id=f"q{index:04d}") for index, item in enumerate(selected, 1)]
-

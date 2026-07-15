@@ -84,6 +84,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="strict excluye videos que no mencionan la institucion en sus metadatos.",
     )
     parser.add_argument(
+        "--source-country-policy",
+        choices=("strict", "prefer", "off"),
+        default="strict",
+        help=(
+            "strict exige que el canal pertenezca al pais de la institucion; "
+            "tambien excluye pais desconocido."
+        ),
+    )
+    parser.add_argument(
         "--min-comments",
         type=int,
         default=75,
@@ -186,6 +195,7 @@ def main() -> int:
             published_after=args.published_after,
             date_policy=args.date_policy,
             institution_policy=args.institution_policy,
+            source_country_policy=args.source_country_policy,
             min_comments=args.min_comments,
             youtube_api_key=args.youtube_api_key,
             metadata_min_sleep=args.metadata_min_sleep,

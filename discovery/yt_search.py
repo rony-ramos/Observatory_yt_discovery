@@ -27,6 +27,7 @@ class SearchHit:
     upload_date: str | None
     live_status: str | None
     description: str | None = None
+    channel_country: str | None = None
 
 
 class YtDlpSearcher:
@@ -107,6 +108,9 @@ class YtDlpSearcher:
                     upload_date=info.get("upload_date") or hit.upload_date,
                     live_status=info.get("live_status") or hit.live_status,
                     description=info.get("description") or hit.description,
+                    channel_country=(
+                        info.get("channel_country") or hit.channel_country
+                    ),
                 )
             except DownloadError as exc:
                 last_error = exc
@@ -146,6 +150,7 @@ class YtDlpSearcher:
                     upload_date=entry.get("upload_date"),
                     live_status=entry.get("live_status"),
                     description=entry.get("description"),
+                    channel_country=entry.get("channel_country"),
                 )
             )
         return hits
