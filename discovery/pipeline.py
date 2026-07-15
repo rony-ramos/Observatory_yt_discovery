@@ -405,6 +405,7 @@ def run_search_pipeline(
         "comment_count_api_enabled": bool(youtube_api_key or youtube_api_client),
         "comment_count_api_checked": 0,
         "comment_count_api_filled": 0,
+        "upload_date_api_filled": 0,
         "comment_count_known": 0,
         "comment_count_qualified": 0,
         "comment_count_unknown": 0,
@@ -557,32 +558,43 @@ def run_search_pipeline(
 
             _write_metadata_skip_cache(metadata_skip_cache, skip_cache)
 
-        if min_comments > 0:
-            missing_comment_ids = [
+        if min_comments > 0 or published_after:
+            missing_api_ids = [
                 video["video_id"]
                 for video in videos.values()
-                if video.get("comment_count") is None
-                and not _is_unavailable_metadata_error(video.get("metadata_error"))
+                if not _is_unavailable_metadata_error(video.get("metadata_error"))
+                and (
+                    (min_comments > 0 and video.get("comment_count") is None)
+                    or (published_after and not video.get("upload_date"))
+                )
             ]
-            if missing_comment_ids and (youtube_api_key or youtube_api_client):
+            if missing_api_ids and (youtube_api_key or youtube_api_client):
                 try:
                     api_client = youtube_api_client or YouTubeVideoApiClient(
                         youtube_api_key or ""
                     )
-                    comment_counts = api_client.fetch_comment_counts(missing_comment_ids)
+                    video_metadata = api_client.fetch_video_metadata(missing_api_ids)
                 except (ValueError, YouTubeApiError) as exc:
                     manifest["errors"].append(
                         {
-                            "stage": "comment_count_api",
+                            "stage": "youtube_video_api",
                             "message": str(exc),
                         }
                     )
                 else:
-                    manifest["comment_count_api_checked"] = len(missing_comment_ids)
-                    for video_id, comment_count in comment_counts.items():
-                        if video_id in videos and comment_count is not None:
-                            videos[video_id]["comment_count"] = comment_count
+                    manifest["comment_count_api_checked"] = len(missing_api_ids)
+                    for video_id, metadata in video_metadata.items():
+                        if video_id not in videos:
+                            continue
+                        if (
+                            metadata.comment_count is not None
+                            and videos[video_id].get("comment_count") is None
+                        ):
+                            videos[video_id]["comment_count"] = metadata.comment_count
                             manifest["comment_count_api_filled"] += 1
+                        if metadata.upload_date and not videos[video_id].get("upload_date"):
+                            videos[video_id]["upload_date"] = metadata.upload_date
+                            manifest["upload_date_api_filled"] += 1
 
         if published_after:
             for video in videos.values():

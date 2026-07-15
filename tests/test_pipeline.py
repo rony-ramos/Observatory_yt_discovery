@@ -12,6 +12,7 @@ from discovery.dictionary import KeywordDictionary
 from discovery.institutions import InstitutionRegistry
 from discovery.pipeline import run_search_pipeline
 from discovery.planner import plan_queries
+from discovery.youtube_api import YouTubeVideoMetadata
 from discovery.yt_search import SearchExecutionError, SearchHit
 
 
@@ -239,14 +240,55 @@ class CommentCountSearcher:
         return hit
 
 
+class UploadDateApiFallbackSearcher:
+    def search(self, query: str, max_results: int) -> list[SearchHit]:
+        return [
+            SearchHit(
+                video_id="date12def45",
+                url="https://www.youtube.com/watch?v=date12def45",
+                title="Curso de ingreso a la UBA",
+                channel="Canal estudiantil",
+                channel_id="UC-date",
+                duration=300,
+                view_count=100,
+                comment_count=80,
+                upload_date=None,
+                live_status=None,
+                description="Universidad de Buenos Aires",
+            )
+        ][:max_results]
+
+    def enrich(self, hit: SearchHit) -> SearchHit:
+        return hit
+
+
 class FakeCommentApiClient:
-    def __init__(self, counts: dict[str, int | None]) -> None:
+    def __init__(
+        self,
+        counts: dict[str, int | None],
+        upload_dates: dict[str, str | None] | None = None,
+    ) -> None:
         self.counts = counts
+        self.upload_dates = upload_dates or {}
         self.calls: list[list[str]] = []
 
     def fetch_comment_counts(self, video_ids: list[str]) -> dict[str, int | None]:
+        return {
+            video_id: metadata.comment_count
+            for video_id, metadata in self.fetch_video_metadata(video_ids).items()
+        }
+
+    def fetch_video_metadata(
+        self, video_ids: list[str]
+    ) -> dict[str, YouTubeVideoMetadata]:
         self.calls.append(video_ids)
-        return {video_id: self.counts.get(video_id) for video_id in video_ids}
+        return {
+            video_id: YouTubeVideoMetadata(
+                comment_count=self.counts.get(video_id),
+                upload_date=self.upload_dates.get(video_id),
+            )
+            for video_id in video_ids
+        }
 
 
 class QueryPlannerTests(unittest.TestCase):
@@ -580,6 +622,47 @@ class QueryPlannerTests(unittest.TestCase):
                 {"low123def45": "comment_count_below_minimum"},
                 rejected,
             )
+
+    def test_youtube_api_fills_missing_upload_date_for_date_filter(self) -> None:
+        queries = plan_queries(
+            self.dictionary,
+            institution="Universidad de Buenos Aires",
+            aliases=["UBA"],
+            country="AR",
+            indicators=["ingreso"],
+            max_queries=1,
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            api_client = FakeCommentApiClient(
+                {},
+                upload_dates={"date12def45": "20240501"},
+            )
+            run_dir = run_search_pipeline(
+                queries=queries,
+                institution="Universidad de Buenos Aires",
+                aliases=["UBA"],
+                country="AR",
+                results_per_query=1,
+                output_root=Path(temporary_directory),
+                searcher=UploadDateApiFallbackSearcher(),
+                min_sleep=0,
+                max_sleep=0,
+                published_after=date(2021, 12, 31),
+                institution_policy="strict",
+                min_comments=75,
+                youtube_api_client=api_client,
+                sleep=lambda _: None,
+            )
+
+            manifest = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+            with (run_dir / "videos.csv").open(encoding="utf-8-sig", newline="") as source:
+                selected = list(csv.DictReader(source))
+
+            self.assertEqual([["date12def45"]], api_client.calls)
+            self.assertEqual(1, manifest["upload_date_api_filled"])
+            self.assertEqual("20240501", selected[0]["upload_date"])
+            self.assertEqual("True", selected[0]["published_after_match"])
 
     def test_metadata_skip_cache_prevents_rechecking_unavailable_video(self) -> None:
         queries = plan_queries(

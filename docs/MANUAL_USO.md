@@ -2,6 +2,8 @@
 
 Este manual explica como usar el pipeline para descubrir videos candidatos de YouTube, filtrar por criterios de investigacion y entender el consumo de cuota cuando se usa YouTube Data API.
 
+Licencia del repositorio: Apache-2.0. Ver `LICENSE`.
+
 ## 1. Objetivo del pipeline
 
 El pipeline separa dos tareas que conviene no mezclar:
@@ -11,7 +13,7 @@ El pipeline separa dos tareas que conviene no mezclar:
 
 La busqueda inicial no usa `search.list` de YouTube Data API. En su lugar usa `yt-dlp` en modo de extraccion plana para consultar resultados web de YouTube. Esto evita gastar cuota de busqueda y reduce el sesgo de usar solo el buscador de la API.
 
-Despues de descubrir videos, el pipeline puede enriquecer metadata y usar la API solo para completar datos puntuales, como `comment_count`, cuando yt-dlp no los obtiene.
+Despues de descubrir videos, el pipeline puede enriquecer metadata y usar la API solo para completar datos puntuales, como `comment_count` y `upload_date`, cuando yt-dlp no los obtiene.
 
 ## 2. Instalacion
 
@@ -45,7 +47,7 @@ El flujo completo es:
 4. Buscar videos con yt-dlp.
 5. Deduplicar por `video_id`.
 6. Enriquecer metadata faltante.
-7. Completar `comment_count` con YouTube API si hay API key.
+7. Completar `comment_count` y `upload_date` con YouTube API si hay API key.
 8. Filtrar por institucion, fecha y comentarios.
 9. Guardar reportes en `runs/`.
 
@@ -251,7 +253,7 @@ python -m discovery --institution-id uanl --require-eligible --all-indicators --
 
 ## 7. Uso de YouTube API
 
-El pipeline puede usar YouTube Data API solo para completar `comment_count` faltante. No usa la API para buscar videos.
+El pipeline puede usar YouTube Data API solo para completar `comment_count` y `upload_date` faltantes. No usa la API para buscar videos.
 
 En CMD:
 
@@ -290,10 +292,10 @@ Fuentes:
 
 ## 9. Cuantos videos se pueden validar por dia
 
-Validar cantidad de comentarios no descarga comentarios. Solo consulta estadisticas del video con:
+Validar cantidad de comentarios y fecha de publicacion no descarga comentarios. Solo consulta metadata del video con:
 
 ```text
-videos.list(part=statistics)
+videos.list(part=snippet,statistics)
 ```
 
 Cada llamada cuesta 1 unidad y puede consultar hasta 50 IDs de video.
@@ -385,6 +387,7 @@ Por eso puede tener:
 
 ```json
 "comment_count": null
+"upload_date": null
 ```
 
 aunque la API key este configurada. Para revisar el resultado final, usar:
@@ -451,4 +454,3 @@ En siguientes corridas, esos IDs se saltan para no repetir validaciones inutiles
 - Mantener `--min-comments 75` para asegurar densidad conversacional.
 - Usar `--require-national` solo cuando la universidad sea nacional en sentido institucional.
 - Usar `--require-eligible` cuando se quiera exigir QS/licenciamiento del padron.
-

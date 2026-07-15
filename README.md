@@ -4,6 +4,8 @@ Pipeline de descubrimiento de videos de YouTube para proyectos de observacion de
 
 Manual completo: [docs/MANUAL_USO.md](docs/MANUAL_USO.md)
 
+Licencia: Apache-2.0. Ver [LICENSE](LICENSE).
+
 ## Instalacion
 
 Desde la carpeta del proyecto:
@@ -50,7 +52,7 @@ Si aparecen errores `HTTP 429` o bloqueos temporales, bajar a `--metadata-worker
 
 ## YouTube API para comentarios
 
-El pipeline no usa la API de YouTube para buscar videos. Solo puede usarla despues, de forma opcional, para completar `comment_count` cuando yt-dlp no lo obtiene.
+El pipeline no usa la API de YouTube para buscar videos. Solo puede usarla despues, de forma opcional, para completar `comment_count` y `upload_date` cuando yt-dlp no los obtiene.
 
 En CMD:
 
@@ -72,7 +74,7 @@ Tambien puedes pasar la key directamente:
 python -m discovery --institution-id unr --require-national --all-indicators --youtube-api-key TU_API_KEY
 ```
 
-Si no hay API key y un video queda con `comment_count` desconocido, se rechaza como `comment_count_unknown`.
+Si no hay API key y un video queda con `comment_count` desconocido, se rechaza como `comment_count_unknown`. Si falta `upload_date`, el filtro de fecha queda como desconocido salvo que yt-dlp o la API lo completen.
 
 ## Indicadores
 
@@ -133,7 +135,7 @@ Archivos principales:
 - `videos.csv`: videos aceptados despues de filtros.
 - `rejected.csv`: videos descartados y razon de rechazo.
 
-Importante: `results_raw.jsonl` puede tener `comment_count` nulo aunque la API key este configurada, porque ese archivo se escribe antes de completar metadata. Para revisar resultados finales usa `videos.csv` y `rejected.csv`.
+Importante: `results_raw.jsonl` puede tener `comment_count` o `upload_date` nulos aunque la API key este configurada, porque ese archivo se escribe antes de completar metadata. Para revisar resultados finales usa `videos.csv` y `rejected.csv`.
 
 ## Columnas utiles del reporte
 

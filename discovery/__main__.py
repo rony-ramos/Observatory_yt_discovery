@@ -92,7 +92,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--youtube-api-key",
         default=os.getenv("YOUTUBE_API_KEY"),
-        help="API key opcional para completar comment_count faltante con YouTube Data API.",
+        help=(
+            "API key opcional para completar comment_count y upload_date "
+            "faltantes con YouTube Data API."
+        ),
     )
     parser.add_argument("--metadata-min-sleep", type=float, default=2.5)
     parser.add_argument("--metadata-max-sleep", type=float, default=5.0)
