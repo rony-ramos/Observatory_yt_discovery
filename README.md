@@ -2,6 +2,8 @@
 
 Pipeline de descubrimiento de videos de YouTube para proyectos de observacion de educacion superior. El flujo usa `yt-dlp` para buscar en la web de YouTube sin consumir cuota de busqueda de la API, enriquece metadata de los videos candidatos y filtra por institucion, fecha y cantidad minima de comentarios.
 
+Manual completo: [docs/MANUAL_USO.md](docs/MANUAL_USO.md)
+
 ## Instalacion
 
 Desde la carpeta del proyecto:
@@ -178,4 +180,3 @@ Corrida amplia:
 ```bat
 python -m discovery --institution-id unr --require-national --all-indicators --max-queries 128 --results-per-query 40 --min-comments 75 --metadata-workers 2
 ```
-
