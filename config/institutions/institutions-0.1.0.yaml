@@ -180,3 +180,32 @@ institutions:
         channel_id: UCEta0e663FgxvYgCABhGl6w
         url: https://www.youtube.com/@UNA_Puno
         verification_status: verified
+
+  - id: unalm
+    name: Universidad Nacional Agraria La Molina
+    country: PE
+    aliases:
+      - UNALM
+      - Universidad Agraria La Molina
+      - Universidad Nacional Agraria de La Molina
+      - Universidad La Molina 
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: verified
+      sources:
+        - criterion: national_and_licensed
+          url: https://www.sunedu.gob.pe/universidad-agraria-se-convierte-en-primera-publica-en-recibir-licenciamiento/
+          note: SUNEDU identifies UNALM as a public university and reports its institutional license.
+        - criterion: licensed
+          url: https://www.sunedu.gob.pe/renovacion-licencia-institucional/
+          note: SUNEDU includes UNALM in its institutional license renewal schedule.
+        - criterion: qs_ranked
+          url: https://www.topuniversities.com/universities/universidad-nacional-agraria-la-molina
+          note: QS World University Rankings 2026, band 1401+.
+    official_channels:
+      - name: Universidad Nacional Agraria La Molina
+        channel_id: UCkHdhb2p3l_XvgSwd92Uykg
+        url: https://youtube.com/@admisionagrarialamolina
+        verification_status: verified
