@@ -8,10 +8,26 @@ from unittest.mock import patch
 
 from openpyxl import Workbook
 
-from discovery.download import DownloadResult, VideoRequest, download_videos, load_video_requests
+from discovery.download import (
+    DownloadResult,
+    VideoRequest,
+    build_direct_video_requests,
+    download_videos,
+    load_video_requests,
+)
 
 
 class VideoDownloadTests(unittest.TestCase):
+    def test_direct_requests_accept_ids_and_urls_without_duplicates(self) -> None:
+        requests = build_direct_video_requests(
+            ["abc123def45", "https://youtu.be/abc123def45"],
+            "Universidad Nacional A",
+        )
+
+        self.assertEqual(1, len(requests))
+        self.assertEqual("abc123def45", requests[0].video_id)
+        self.assertEqual("Universidad Nacional A", requests[0].institution)
+
     def test_load_requests_uses_institution_and_deduplicates_within_itself(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             input_path = Path(temp_dir) / "videos.xlsx"
