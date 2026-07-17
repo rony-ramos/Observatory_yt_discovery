@@ -29,6 +29,8 @@ provenance:
 countries:
   - code: AR
     label: Argentina
+  - code: BR
+    label: Brasil
   - code: CL
     label: Chile
   - code: CO
@@ -202,6 +204,7 @@ terms:
         - problemas con la inscripcion de materias
         - requisitos para reinscribirse
       PE: [matricula universitaria, proceso de matricula]
+      BR: [como fazer matricula na universidade, matricula em disciplinas, requisitos para matricula, processo de matricula]
     intents: [informational, procedural, problem]
     source_types: [official, third_party]
     status: seed
@@ -217,6 +220,7 @@ terms:
     canonical: fechas de matricula
     variants:
       global: [fechas de matricula, calendario de matricula, cronograma de matricula]
+      BR: [datas de matricula, calendario academico, cronograma de matricula]
     intents: [procedural]
     source_types: [official, third_party]
     status: seed
@@ -246,6 +250,7 @@ terms:
         - experiencia con el examen de ingreso
         - proceso para aspirantes universitarios
       PE: [admision universitaria, proceso de admision]
+      BR: [como entrar na universidade, processo seletivo, como se inscrever na universidade, experiencia com o vestibular]
     intents: [informational, procedural, experiential, problem]
     source_types: [official, third_party]
     status: seed
@@ -264,6 +269,7 @@ terms:
         - vacantes
         - resultados de admision
         - lista de admitidos
+      BR: [requisitos de ingresso, vestibular, nota de corte, vagas, resultado do vestibular, lista de aprovados]
     intents: [informational, procedural, experiential]
     source_types: [official, third_party]
     status: seed
@@ -293,6 +299,7 @@ terms:
         - colegiatura y gastos universitarios
         - cuanto se paga por semestre
       PE: [pension, costo de la carrera, mensualidad]
+      BR: [quanto custa estudar, custo de uma graduacao, mensalidade universitaria, custo de vida para estudar]
     intents: [informational, experiential, comparison, problem]
     source_types: [official, third_party]
     status: seed
@@ -305,6 +312,7 @@ terms:
     canonical: pagos universitarios
     variants:
       global: [pagos universitarios, formas de pago, mensualidad, cuotas universitarias]
+      BR: [taxas universitarias, formas de pagamento, mensalidade, parcelas da universidade]
     intents: [informational, procedural, problem]
     source_types: [official, third_party]
     status: seed
@@ -322,6 +330,7 @@ terms:
       CO: [beca universitaria, credito educativo, apoyo de sostenimiento]
       MX: [beca universitaria, apoyo para estudiantes]
       PE: [beca universitaria, subvencion, credito educativo]
+      BR: [bolsa de estudos, auxilio financeiro, auxilio estudantil]
     intents: [informational, procedural, experiential, problem]
     source_types: [official, third_party]
     status: seed
@@ -338,6 +347,7 @@ terms:
         - oferta de carreras universitarias
         - carreras y salidas profesionales
         - como elegir una carrera
+      BR: [quais cursos tem, cursos de graduacao, cursos e mercado de trabalho, como escolher um curso]
     intents: [informational, experiential, opinion, comparison]
     source_types: [official, third_party]
     status: seed
@@ -367,6 +377,7 @@ terms:
         - dificultad del plan de estudios
         - como es el plan de estudios
       PE: [malla curricular, plan de estudios]
+      BR: [grade curricular, disciplinas do curso, duracao e disciplinas, opiniao sobre a grade curricular]
     intents: [informational, experiential, comparison, problem]
     source_types: [official, third_party]
     status: seed
@@ -385,6 +396,7 @@ terms:
         - doctorado
         - especializacion
         - diplomado
+      BR: [pos-graduacao, mestrado, doutorado, especializacao]
     intents: [informational, experiential, opinion, comparison]
     source_types: [official, third_party]
     status: seed
@@ -403,6 +415,7 @@ terms:
         - exigencia academica
         - prestigio academico
         - acreditacion
+      BR: [qualidade academica, nivel de ensino, qualidade do ensino, exigencia academica, prestigio academico, avaliacao do MEC]
     intents: [informational, experiential, opinion, comparison, problem]
     source_types: [official, third_party]
     status: seed
@@ -418,6 +431,7 @@ terms:
     canonical: reputacion universitaria
     variants:
       global: [reputacion universitaria, prestigio de la universidad, ranking universitario]
+      BR: [reputacao da universidade, prestigio da universidade, ranking universitario]
     intents: [informational, opinion, comparison]
     source_types: [official, third_party]
     status: seed
@@ -439,6 +453,7 @@ terms:
         - como ensenan los profesores
         - experiencia con maestros universitarios
         - calidad de los profesores
+      BR: [como sao os professores, opiniao sobre os professores, metodo de ensino dos docentes, experiencia com professores universitarios]
     intents: [informational, experiential, opinion, problem]
     source_types: [official, third_party]
     status: seed
@@ -455,6 +470,7 @@ terms:
         - como son las instalaciones
         - tour por las facultades
         - experiencia en el campus universitario
+      BR: [tour pela universidade, como e o campus, tour pelas faculdades, experiencia no campus universitario]
     intents: [informational, experiential, opinion, comparison, problem]
     source_types: [official, third_party]
     status: seed
@@ -472,6 +488,7 @@ terms:
         - transporte universitario
         - gimnasio universitario
         - servicios del campus
+      BR: [restaurante universitario, moradia estudantil, transporte universitario, academia no campus, servicos do campus]
     intents: [informational, experiential, opinion, problem]
     source_types: [official, third_party]
     status: seed
@@ -489,6 +506,7 @@ terms:
         - ambiente universitario
         - comunidad estudiantil
         - vida de estudiante
+      BR: [vida universitaria, vida no campus, ambiente universitario, comunidade estudantil, vida de estudante]
     intents: [experiential, opinion, comparison, problem]
     source_types: [official, third_party]
     status: seed
@@ -507,6 +525,7 @@ terms:
         - asociaciones estudiantiles
         - centro de estudiantes
         - eventos universitarios
+      BR: [atividades estudantis, esporte universitario, atleticas universitarias, centros academicos, eventos universitarios]
     intents: [informational, experiential, opinion]
     source_types: [official, third_party]
     status: seed
@@ -523,6 +542,7 @@ terms:
         - como son las clases
         - experiencia con clases virtuales
         - estudiar presencial o virtual
+      BR: [modalidade de ensino, como sao as aulas, experiencia com aulas online, estudar presencial ou EAD]
     intents: [informational, experiential, opinion, comparison, problem]
     source_types: [official, third_party]
     status: seed
@@ -538,6 +558,7 @@ terms:
     canonical: horarios de estudio
     variants:
       global: [horarios, turnos, jornada de estudio, clases nocturnas]
+      BR: [horarios, turnos, jornada de estudos, aulas noturnas]
     intents: [informational, experiential, opinion, problem]
     source_types: [official, third_party]
     status: seed
@@ -554,6 +575,7 @@ terms:
         - primer ano en la universidad
         - dia como estudiante universitario
         - experiencia estudiando una carrera
+      BR: [experiencia de estudantes, primeiro ano na universidade, um dia como estudante universitario, experiencia cursando uma graduacao]
     intents: [experiential, opinion]
     source_types: [third_party]
     status: seed
@@ -573,6 +595,7 @@ terms:
         - ventajas y desventajas de estudiar
         - problemas reales de estudiantes
         - opinion honesta sobre la universidad
+      BR: [vale a pena estudar aqui, vantagens e desvantagens de estudar, problemas reais de estudantes, opiniao sincera sobre a universidade]
     intents: [opinion, comparison, problem]
     source_types: [third_party]
     status: seed
