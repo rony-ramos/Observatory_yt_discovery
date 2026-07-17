@@ -37,6 +37,12 @@ countries:
     label: Mexico
   - code: PE
     label: Peru
+  - code: UY
+    label: Uruguay
+  - code: SV
+    label: El Salvador
+  - code: VE
+    label: Venezuela
 
 statuses:
   - seed

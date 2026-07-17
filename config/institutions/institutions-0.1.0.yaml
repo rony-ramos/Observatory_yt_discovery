@@ -14,6 +14,12 @@ countries:
     name: Mexico
   - code: PE
     name: Peru
+  - code: UY
+    name: Uruguay
+  - code: SV
+    name: El Salvador
+  - code: VE
+    name: Venezuela
 
 institutions:
   - id: uba
@@ -148,3 +154,142 @@ institutions:
         channel_id: UC5p6qfmUMpy3xB1c_afImhg
         url: https://www.youtube.com/@uanlred
         verification_status: verified
+
+  - id: udeg
+    name: Universidad de Guadalajara
+    country: MX
+    aliases:
+      - UdeG
+      - UDG
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: pending_user_review
+      sources: []
+    official_channels: [https://www.youtube.com/@UdeG]
+
+  - id: udelar
+    name: Universidad de la Republica
+    country: UY
+    aliases:
+      - Udelar
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: pending_user_review
+      sources: []
+    official_channels: [https://www.youtube.com/@UniversidaddelaRepublica]
+
+  - id: ucu
+    name: Universidad Catolica del Uruguay
+    country: UY
+    aliases:
+      - UCU
+    eligibility:
+      national: false
+      licensed: true
+      qs_ranked: true
+      verification_status: pending_user_review
+      sources: []
+    official_channels: [https://www.youtube.com/@UniversidadCatolicadelUruguay]
+
+  - id: utec
+    name: Universidad Tecnologica
+    country: UY
+    aliases:
+      - UTEC
+      - UTEC Uruguay
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: false
+      verification_status: pending_user_review
+      sources: []
+    official_channels: [https://www.youtube.com/@utec-uy]
+
+  - id: unheval
+    name: Universidad Nacional Hermilio Valdizan
+    country: PE
+    aliases:
+      - UNHEVAL
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: false
+      verification_status: pending_user_review
+      sources: []
+    official_channels: [https://www.youtube.com/@unhevaloficial]
+
+  - id: unsm
+    name: Universidad Nacional de San Martin
+    country: PE
+    aliases:
+      - UNSM
+      - Universidad Nacional de San Martin Tarapoto
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: false
+      verification_status: pending_user_review
+      sources: []
+    official_channels: [https://www.youtube.com/@unsmperu]
+
+  - id: uncuyo
+    name: Universidad Nacional de Cuyo
+    country: AR
+    aliases:
+      - UNCUYO
+      - UNCuyo
+      - Universidad de Cuyo
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: pending_user_review
+      sources: []
+    official_channels: [https://www.youtube.com/@UniversidadNacionaldeCuyo]
+
+  - id: unt-arg
+    name: Universidad Nacional de Tucuman
+    country: AR
+    aliases:
+      - UNT
+      - UNT Tucuman
+      - Universidad de Tucuman
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: pending_user_review
+      sources: []
+    official_channels: [https://www.youtube.com/@MediosUNT]
+
+  - id: ues
+    name: Universidad de El Salvador
+    country: SV
+    aliases:
+      - UES
+      - Universidad El Salvador
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: false
+      verification_status: pending_user_review
+      sources: []
+    official_channels: [https://www.youtube.com/@TVUES]
+
+  - id: ula
+    name: Universidad de los Andes
+    country: VE
+    aliases:
+      - ULA
+      - Universidad de los Andes Venezuela
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: pending_user_review
+      sources: []
+    official_channels: [https://www.youtube.com/@ULATV]
