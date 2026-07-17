@@ -3,4 +3,5 @@ __pycache__/
 .venv/
 runs/
 /experiments/
+/downloads/
 *.xlsx
