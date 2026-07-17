@@ -168,6 +168,31 @@ def load_video_requests(input_path: Path, sheet_name: str | None = None) -> list
     return requests
 
 
+def build_direct_video_requests(video_ids: list[str], institution: str) -> list[VideoRequest]:
+    institution = institution.strip()
+    if not institution:
+        raise ValueError("Debes enviar --institution al usar --video-id.")
+
+    requests: list[VideoRequest] = []
+    seen: set[str] = set()
+    for position, video_id in enumerate(video_ids, start=1):
+        normalized_id = _video_id_from_value(video_id)
+        if not normalized_id:
+            raise ValueError(f"ID o URL de YouTube invalido: {video_id}")
+        if normalized_id in seen:
+            continue
+        seen.add(normalized_id)
+        requests.append(
+            VideoRequest(
+                video_id=normalized_id,
+                url=f"https://www.youtube.com/watch?v={normalized_id}",
+                row_number=position,
+                institution=institution,
+            )
+        )
+    return requests
+
+
 def _download_one(
     request: VideoRequest,
     *,
@@ -291,8 +316,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Descarga videos de YouTube listados en un archivo XLSX."
     )
-    parser.add_argument("--input", type=Path, required=True, help="Ruta al archivo XLSX.")
+    source_group = parser.add_mutually_exclusive_group(required=True)
+    source_group.add_argument("--input", type=Path, help="Ruta al archivo XLSX.")
+    source_group.add_argument(
+        "--video-id",
+        action="append",
+        help="ID o URL de un video. Puede repetirse para descargas puntuales.",
+    )
     parser.add_argument("--sheet", help="Hoja del XLSX. Por defecto usa la hoja activa.")
+    parser.add_argument(
+        "--institution",
+        help="Institucion obligatoria para --video-id; define su carpeta de descarga.",
+    )
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -314,13 +349,18 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = build_parser().parse_args()
     try:
-        input_path = args.input.resolve()
         download_root = (
             args.output_dir.resolve()
             if args.output_dir
             else PROJECT_ROOT / "downloads"
         )
-        requests = load_video_requests(input_path, args.sheet)
+        if args.input:
+            input_path = args.input.resolve()
+            requests = load_video_requests(input_path, args.sheet)
+            report_name = input_path.stem
+        else:
+            requests = build_direct_video_requests(args.video_id, args.institution or "")
+            report_name = "manual"
         print(f"Plan: {len(requests)} videos, salida: {download_root}")
         results = asyncio.run(
             download_videos(
@@ -336,7 +376,7 @@ def main() -> int:
         report_dir = (
             download_root
             / "_reports"
-            / f"{input_path.stem}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            / f"{report_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         )
         _write_report(report_dir, results)
     except (OSError, ValueError, SearchDependencyError) as exc:
