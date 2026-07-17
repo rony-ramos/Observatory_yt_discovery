@@ -232,9 +232,9 @@ institutions:
           note: QS World University Rankings, rank 367.
     official_channels:
       - name: Universidade Federal do Rio de Janeiro
-        channel_id:
-        url:
-        verification_status: pending_user_review
+        channel_id: UCEYgsvGOsYCome1Qb9No-BQ
+        url: https://www.youtube.com/@UFRJ_oficial
+        verification_status: verified
 
   - id: ufmg
     name: Universidade Federal de Minas Gerais
@@ -256,9 +256,9 @@ institutions:
           note: QS World University Rankings, rank 595.
     official_channels:
       - name: Universidade Federal de Minas Gerais
-        channel_id:
-        url:
-        verification_status: pending_user_review
+        channel_id: UCmAPduRC7ivNngqq2pgIxBg
+        url: https://youtube.com/@ufmg?si=brirALHGsj26TdlB
+        verification_status: verified
 
   - id: unb
     name: Universidade de Brasilia
@@ -330,6 +330,6 @@ institutions:
           note: QS World University Rankings 2027, band 1201-1400.
     official_channels:
       - name: Universidade Federal Fluminense
-        channel_id:
-        url:
-        verification_status: pending_user_review
+        channel_id: UC51stpYBUkfsdeNz_AfONpA
+        url: https://www.youtube.com/@UFFoficial
+        verification_status: verified
