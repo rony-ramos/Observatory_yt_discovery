@@ -120,6 +120,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="JSON persistente con videos cuya metadata no debe reintentarse.",
     )
     parser.add_argument(
+        "--cookies-from-browser",
+        help=(
+            "Navegador del que yt-dlp leera cookies locales, por ejemplo chrome, edge o firefox. "
+            "Las cookies no se guardan en el proyecto."
+        ),
+    )
+    parser.add_argument(
+        "--cookies-browser-profile",
+        help="Perfil local del navegador, por ejemplo Default o Profile 1.",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=PROJECT_ROOT / "runs",
@@ -202,6 +213,8 @@ def main() -> int:
             metadata_max_sleep=args.metadata_max_sleep,
             metadata_workers=args.metadata_workers,
             metadata_skip_cache=args.metadata_skip_cache,
+            cookies_from_browser=args.cookies_from_browser,
+            cookies_browser_profile=args.cookies_browser_profile,
             institution_registry_version=registry.version if registry else None,
             institution_id=registry_institution.id if registry_institution else None,
             institution_eligibility=(

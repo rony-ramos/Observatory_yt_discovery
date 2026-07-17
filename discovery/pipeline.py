@@ -363,6 +363,8 @@ def run_search_pipeline(
     metadata_max_sleep: float = 5.0,
     metadata_workers: int = 1,
     metadata_skip_cache: Path | None = None,
+    cookies_from_browser: str | None = None,
+    cookies_browser_profile: str | None = None,
     min_comments: int = 75,
     youtube_api_key: str | None = None,
     youtube_api_client: YouTubeVideoApiClient | None = None,
@@ -451,6 +453,8 @@ def run_search_pipeline(
         "metadata_workers": metadata_workers,
         "metadata_skip_cache": str(metadata_skip_cache),
         "metadata_skipped_cached": 0,
+        "cookies_from_browser": cookies_from_browser,
+        "cookies_browser_profile": cookies_browser_profile,
         "min_comments": min_comments,
         "comment_count_api_enabled": active_api_client is not None,
         "comment_count_api_checked": 0,
@@ -471,7 +475,11 @@ def run_search_pipeline(
         _write_json(run_dir / "run.json", manifest)
         return run_dir
 
-    active_searcher = searcher or YtDlpSearcher(retries=retries)
+    active_searcher = searcher or YtDlpSearcher(
+        retries=retries,
+        cookies_from_browser=cookies_from_browser,
+        cookies_browser_profile=cookies_browser_profile,
+    )
     videos: dict[str, dict[str, Any]] = {}
     raw_path = run_dir / "results_raw.jsonl"
 

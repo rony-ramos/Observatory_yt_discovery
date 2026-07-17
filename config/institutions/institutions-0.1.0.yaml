@@ -6,6 +6,8 @@ registry:
 countries:
   - code: AR
     name: Argentina
+  - code: BR
+    name: Brazil
   - code: CL
     name: Chile
   - code: CO
@@ -293,3 +295,186 @@ institutions:
       verification_status: pending_user_review
       sources: []
     official_channels: [https://www.youtube.com/@ULATV]
+
+  - id: unap_puno
+    name: Universidad Nacional del Altiplano de Puno
+    country: PE
+    aliases:
+      - UNA Puno
+      - UNAP Puno
+      - Universidad Nacional del Altiplano
+      - Universidad del Altiplano Puno
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: verified
+      sources:
+        - criterion: national_and_licensed
+          url: https://es.wikipedia.org/wiki/Universidad_Nacional_del_Altiplano_de_Puno
+          note: Public national university founded in Puno; current institutional denomination established by Peruvian university law context.
+        - criterion: licensed
+          url: https://es.wikipedia.org/wiki/Universidad_Nacional_del_Altiplano_de_Puno
+          note: Institutional license granted by SUNEDU through Resolution 101-2017-SUNEDU/CD.
+        - criterion: qs_ranked
+          url: https://www.topuniversities.com/latin-america-caribbean-overall?countries=pe&page=1
+          note: Listed in QS Latin America and the Caribbean regional rankings for Peru.
+        - criterion: student_count
+          url: https://de.wikipedia.org/wiki/Universidad_Nacional_del_Altiplano_de_Puno
+          note: Reference profile reports 18,941 students.
+    official_channels:
+      - name: Universidad Nacional del Altiplano de Puno
+        channel_id: UCEta0e663FgxvYgCABhGl6w
+        url: https://www.youtube.com/@UNA_Puno
+        verification_status: verified
+
+  - id: unalm
+    name: Universidad Nacional Agraria La Molina
+    country: PE
+    aliases:
+      - UNALM
+      - Universidad Agraria La Molina
+      - Universidad Nacional Agraria de La Molina
+      - Universidad La Molina 
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: verified
+      sources:
+        - criterion: national_and_licensed
+          url: https://www.sunedu.gob.pe/universidad-agraria-se-convierte-en-primera-publica-en-recibir-licenciamiento/
+          note: SUNEDU identifies UNALM as a public university and reports its institutional license.
+        - criterion: licensed
+          url: https://www.sunedu.gob.pe/renovacion-licencia-institucional/
+          note: SUNEDU includes UNALM in its institutional license renewal schedule.
+        - criterion: qs_ranked
+          url: https://www.topuniversities.com/universities/universidad-nacional-agraria-la-molina
+          note: QS World University Rankings 2026, band 1401+.
+    official_channels:
+      - name: Universidad Nacional Agraria La Molina
+        channel_id: UCkHdhb2p3l_XvgSwd92Uykg
+        url: https://youtube.com/@admisionagrarialamolina
+        verification_status: verified
+
+  - id: ufrj
+    name: Universidade Federal do Rio de Janeiro
+    country: BR
+    aliases:
+      - UFRJ
+      - Universidade do Rio de Janeiro
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: verified
+      sources:
+        - criterion: national_and_licensed
+          url: https://repositorio.cgu.gov.br/handle/1/438/browse?etal=-1&null=&offset=361&order=ASC&rpp=20&sort_by=1&type=title
+          note: Federal public autarchy, established by federal law and subject to the national higher education system.
+        - criterion: qs_ranked
+          url: https://www.topuniversities.com/universities/universidade-federal-do-rio-de-janeiro
+          note: QS World University Rankings, rank 367.
+    official_channels:
+      - name: Universidade Federal do Rio de Janeiro
+        channel_id: UCEYgsvGOsYCome1Qb9No-BQ
+        url: https://www.youtube.com/@UFRJ_oficial
+        verification_status: verified
+
+  - id: ufmg
+    name: Universidade Federal de Minas Gerais
+    country: BR
+    aliases:
+      - UFMG
+      - Federal University of Minas Gerais
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: verified
+      sources:
+        - criterion: national_and_licensed
+          url: https://semad.mg.gov.br/documents/d/semad/cases-seapa_seloverde_port-pdf
+          note: Government source identifies UFMG as a public university offering higher education.
+        - criterion: qs_ranked
+          url: https://www.topuniversities.com/universities/federal-university-minas-gerais-ufmg
+          note: QS World University Rankings, rank 595.
+    official_channels:
+      - name: Universidade Federal de Minas Gerais
+        channel_id: UCmAPduRC7ivNngqq2pgIxBg
+        url: https://youtube.com/@ufmg?si=brirALHGsj26TdlB
+        verification_status: verified
+
+  - id: unb
+    name: Universidade de Brasilia
+    country: BR
+    aliases:
+      - UnB
+      - Universidade de Brasilia
+      - University of Brasilia
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: verified
+      sources:
+        - criterion: national_and_licensed
+          url: https://www.gov.br/cgu/pt-br/assuntos/integridade-publica/programa-de-integridade/planos-de-integridade/arquivos/unb_fundacao-universidade-de-brasilia_vp.pdf
+          note: Federal government source identifies UnB as the public federal university of the Federal District.
+        - criterion: qs_ranked
+          url: https://www.topuniversities.com/universities/universidade-de-brasilia
+          note: QS World University Rankings, band 851-900.
+    official_channels:
+      - name: Universidade de Brasilia
+        channel_id:
+        url:
+        verification_status: pending_user_review
+
+  - id: unifesp
+    name: Universidade Federal de Sao Paulo
+    country: BR
+    aliases:
+      - UNIFESP
+      - Universidade Federal de Sao Paulo
+      - Federal University of Sao Paulo
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: verified
+      sources:
+        - criterion: national_and_licensed
+          url: https://repositorio.mcti.gov.br/bitstream/mctic/5182/1/2010_quadro_de_atores_selecionados_no_sistema_nacional_de_ciencia_tecnologia_e_inovacao_universidades_brasileiras.pdf
+          note: Federal government source identifies UNIFESP as a public higher education institution.
+        - criterion: qs_ranked
+          url: https://www.topuniversities.com/universities/universidade-federal-de-sao-paulo
+          note: QS World University Rankings, band 801-850.
+    official_channels:
+      - name: Universidade Federal de Sao Paulo
+        channel_id:
+        url:
+        verification_status: pending_user_review
+
+  - id: uff
+    name: Universidade Federal Fluminense
+    country: BR
+    aliases:
+      - UFF
+      - Federal Fluminense University
+    eligibility:
+      national: true
+      licensed: true
+      qs_ranked: true
+      verification_status: verified
+      sources:
+        - criterion: national_and_licensed
+          url: https://www.gov.br/participamaisbrasil/uff
+          note: Federal government source identifies UFF as a public higher education institution created by federal law.
+        - criterion: qs_ranked
+          url: https://www.topuniversities.com/universities/universidade-federal-fluminense
+          note: QS World University Rankings 2027, band 1201-1400.
+    official_channels:
+      - name: Universidade Federal Fluminense
+        channel_id: UC51stpYBUkfsdeNz_AfONpA
+        url: https://www.youtube.com/@UFFoficial
+        verification_status: verified
