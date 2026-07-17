@@ -31,9 +31,29 @@ class SearchHit:
 
 
 class YtDlpSearcher:
-    def __init__(self, *, retries: int = 2, retry_base_seconds: float = 5.0) -> None:
+    def __init__(
+        self,
+        *,
+        retries: int = 2,
+        retry_base_seconds: float = 5.0,
+        cookies_from_browser: str | None = None,
+        cookies_browser_profile: str | None = None,
+    ) -> None:
         self.retries = retries
         self.retry_base_seconds = retry_base_seconds
+        self.cookies_from_browser = cookies_from_browser
+        self.cookies_browser_profile = cookies_browser_profile
+
+    def _with_browser_cookies(self, options: dict[str, Any]) -> dict[str, Any]:
+        if not self.cookies_from_browser:
+            return options
+        options["cookiesfrombrowser"] = (
+            self.cookies_from_browser,
+            self.cookies_browser_profile,
+            None,
+            None,
+        )
+        return options
 
     @staticmethod
     def _dependencies() -> tuple[Any, type[Exception]]:
@@ -48,7 +68,7 @@ class YtDlpSearcher:
 
     def search(self, query: str, max_results: int) -> list[SearchHit]:
         YoutubeDL, DownloadError = self._dependencies()
-        options = {
+        options = self._with_browser_cookies({
             "extract_flat": True,
             "skip_download": True,
             "quiet": True,
@@ -56,7 +76,7 @@ class YtDlpSearcher:
             "ignoreerrors": False,
             "playlistend": max_results,
             "socket_timeout": 30,
-        }
+        })
 
         last_error: Exception | None = None
         for attempt in range(self.retries + 1):
@@ -78,14 +98,14 @@ class YtDlpSearcher:
 
     def enrich(self, hit: SearchHit) -> SearchHit:
         YoutubeDL, DownloadError = self._dependencies()
-        options = {
+        options = self._with_browser_cookies({
             "skip_download": True,
             "quiet": True,
             "no_warnings": True,
             "ignoreerrors": False,
             "noplaylist": True,
             "socket_timeout": 30,
-        }
+        })
 
         last_error: Exception | None = None
         for attempt in range(self.retries + 1):

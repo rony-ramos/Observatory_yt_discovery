@@ -453,6 +453,8 @@ def run_dictionary_experiment(
     metadata_min_sleep: float = 2.5,
     metadata_max_sleep: float = 5.0,
     metadata_workers: int = 1,
+    cookies_from_browser: str | None = None,
+    cookies_browser_profile: str | None = None,
     youtube_api_key: str | None = None,
 ) -> Path:
     scenario = suite.get_scenario(scenario_id)
@@ -555,6 +557,8 @@ def run_dictionary_experiment(
             metadata_max_sleep=metadata_max_sleep,
             metadata_workers=metadata_workers,
             metadata_skip_cache=shared_skip_cache,
+            cookies_from_browser=cookies_from_browser,
+            cookies_browser_profile=cookies_browser_profile,
             min_comments=min_comments,
             youtube_api_key=youtube_api_key,
             institution_registry_version=institution_registry_version,
@@ -667,6 +671,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--metadata-min-sleep", type=float, default=2.5)
     parser.add_argument("--metadata-max-sleep", type=float, default=5.0)
     parser.add_argument("--metadata-workers", type=int, default=1)
+    parser.add_argument("--cookies-from-browser")
+    parser.add_argument("--cookies-browser-profile")
     parser.add_argument("--youtube-api-key", default=os.getenv("YOUTUBE_API_KEY"))
     parser.add_argument("--output-dir", type=Path, default=PROJECT_ROOT / "experiments")
     return parser
@@ -714,6 +720,8 @@ def main() -> int:
             metadata_min_sleep=args.metadata_min_sleep,
             metadata_max_sleep=args.metadata_max_sleep,
             metadata_workers=args.metadata_workers,
+            cookies_from_browser=args.cookies_from_browser,
+            cookies_browser_profile=args.cookies_browser_profile,
             youtube_api_key=args.youtube_api_key,
         )
     except (ValueError, KeyError, OSError, SearchDependencyError) as exc:
