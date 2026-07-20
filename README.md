@@ -99,8 +99,10 @@ downloads/<universidad>/comments/<video_id>_comments.csv
 
 Cada fila incluye el titulo, canal y fecha del video, institucion, texto del
 comentario, autor, fecha de publicacion y actualizacion, cantidad de likes,
-identificador del comentario y relacion con su comentario padre. El resumen de
-la corrida queda en `downloads/_reports/<corrida>/comments_summary.csv`.
+identificador del comentario y relacion con su comentario padre. Ademas, cada
+ejecucion genera automaticamente el consolidado simple
+`downloads/_reports/<corrida>/comentarios.xlsx` con las columnas `Fecha`,
+`Video`, `Titulo`, `Universidad`, `Comentario` y `Likes`.
 
 ## Indicadores
 

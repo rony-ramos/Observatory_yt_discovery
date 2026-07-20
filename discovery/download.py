@@ -592,6 +592,73 @@ def _write_comment_report(
     (report_dir / "comment_download_run.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
     )
+    _write_comments_workbook(report_dir, results)
+
+
+def _write_comments_workbook(
+    report_dir: Path, results: list[CommentDownloadResult]
+) -> Path:
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Alignment, Font
+    except ImportError as exc:
+        raise SearchDependencyError(
+            "Falta openpyxl. Instala las dependencias con: pip install -r requirements.txt"
+        ) from exc
+
+    output_path = report_dir / "comentarios.xlsx"
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Comentarios"
+    headers = ["Fecha", "Video", "Titulo", "Universidad", "Comentario", "Likes"]
+    sheet.append(headers)
+    for cell in sheet[1]:
+        cell.font = Font(bold=True)
+
+    for result in results:
+        source_path = Path(result.file_path)
+        if not source_path.is_file():
+            continue
+        with source_path.open(encoding="utf-8-sig", newline="") as source:
+            for row in csv.DictReader(source):
+                if row.get("record_status") != "comment":
+                    continue
+                try:
+                    likes = int(row.get("like_count") or 0)
+                except ValueError:
+                    likes = 0
+                sheet.append(
+                    [
+                        row.get("comment_published_at"),
+                        row.get("video_url"),
+                        row.get("video_title"),
+                        row.get("institution"),
+                        row.get("comment_text"),
+                        likes,
+                    ]
+                )
+                video_cell = sheet.cell(row=sheet.max_row, column=2)
+                if video_cell.value:
+                    video_cell.hyperlink = str(video_cell.value)
+                    video_cell.style = "Hyperlink"
+                sheet.cell(row=sheet.max_row, column=5).alignment = Alignment(
+                    wrap_text=True, vertical="top"
+                )
+
+    sheet.freeze_panes = "A2"
+    sheet.auto_filter.ref = sheet.dimensions
+    for column, width in {
+        "A": 23,
+        "B": 45,
+        "C": 45,
+        "D": 38,
+        "E": 80,
+        "F": 10,
+    }.items():
+        sheet.column_dimensions[column].width = width
+    workbook.save(output_path)
+    workbook.close()
+    return output_path
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -710,7 +777,7 @@ def main() -> int:
     if args.download_comments:
         failed = sum(result.status == "failed" for result in comment_results)
         downloaded = sum(result.comment_count for result in comment_results)
-        report_path = report_dir / "comments_summary.csv"
+        report_path = report_dir / "comentarios.xlsx"
         print(
             f"Comentarios terminados: {downloaded} registros de "
             f"{len(comment_results)} videos. Reporte: {report_path}"

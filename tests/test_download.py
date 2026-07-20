@@ -7,11 +7,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 
 from discovery.download import (
     DownloadResult,
     VideoRequest,
+    _write_comment_report,
     build_direct_video_requests,
     download_comments,
     download_videos,
@@ -163,6 +164,13 @@ class VideoDownloadTests(unittest.TestCase):
             )
             with csv_path.open(encoding="utf-8-sig", newline="") as source:
                 rows = list(csv.DictReader(source))
+            report_dir = download_root / "_reports" / "test_comments"
+            _write_comment_report(report_dir, results)
+            workbook = load_workbook(report_dir / "comentarios.xlsx", data_only=True)
+            try:
+                summary_rows = list(workbook["Comentarios"].values)
+            finally:
+                workbook.close()
 
         self.assertEqual("completed", results[0].status)
         self.assertEqual(1, results[0].comment_count)
@@ -170,4 +178,13 @@ class VideoDownloadTests(unittest.TestCase):
         self.assertEqual("20240419", rows[0]["video_upload_date"])
         self.assertEqual("12", rows[0]["like_count"])
         self.assertEqual("Buena experiencia", rows[0]["comment_text"])
+        self.assertEqual(
+            ("Fecha", "Video", "Titulo", "Universidad", "Comentario", "Likes"),
+            summary_rows[0],
+        )
+        self.assertEqual("2025-05-01T10:00:00Z", summary_rows[1][0])
+        self.assertEqual("Titulo de YouTube", summary_rows[1][2])
+        self.assertEqual("Universidad Nacional A", summary_rows[1][3])
+        self.assertEqual("Buena experiencia", summary_rows[1][4])
+        self.assertEqual(12, summary_rows[1][5])
 
