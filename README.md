@@ -76,6 +76,34 @@ python -m discovery --institution-id unr --require-national --all-indicators --y
 
 Si no hay API key y un video queda con `comment_count` desconocido, se rechaza como `comment_count_unknown`. Si falta `upload_date`, el filtro de fecha queda como desconocido salvo que yt-dlp o la API lo completen.
 
+### Descargar comentarios desde un Excel
+
+El descargador puede leer el mismo XLSX usado para descargar videos y generar un
+CSV independiente por video. En CMD:
+
+```bat
+set YOUTUBE_API_KEY=TU_API_KEY
+python -m discovery.download --input "A:\USIL CS\GICC USIL\observatory_ws\repository\Proyecto-Observatorio-Discovery\uploads\upload_1.xlsx" --download-comments --workers 2
+```
+
+Este modo usa YouTube Data API y no necesita cookies. Descarga por defecto los
+comentarios principales y todas sus respuestas. Para excluir respuestas usa
+`--exclude-replies`; para limitar el volumen usa, por ejemplo,
+`--max-comments-per-video 500`.
+
+Los archivos quedan organizados de esta forma:
+
+```text
+downloads/<universidad>/comments/<video_id>_comments.csv
+```
+
+Cada fila incluye el titulo, canal y fecha del video, institucion, texto del
+comentario, autor, fecha de publicacion y actualizacion, cantidad de likes,
+identificador del comentario y relacion con su comentario padre. Ademas, cada
+ejecucion genera automaticamente el consolidado simple
+`downloads/_reports/<corrida>/comentarios.xlsx` con las columnas `Fecha`,
+`Video`, `Titulo`, `Universidad`, `Comentario` y `Likes`.
+
 ## Indicadores
 
 El pipeline carga por defecto el diccionario `natural` v1.1.0 mediante

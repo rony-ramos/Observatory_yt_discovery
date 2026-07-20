@@ -1,20 +1,24 @@
 from __future__ import annotations
 
 import asyncio
+import csv
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 
 from discovery.download import (
     DownloadResult,
     VideoRequest,
+    _write_comment_report,
     build_direct_video_requests,
+    download_comments,
     download_videos,
     load_video_requests,
 )
+from discovery.youtube_api import YouTubeComment, YouTubeVideoMetadata
 
 
 class VideoDownloadTests(unittest.TestCase):
@@ -92,4 +96,95 @@ class VideoDownloadTests(unittest.TestCase):
             self.assertTrue(
                 (download_root / "universidad_nacional_b" / "xyz987uvw65.mp4").is_file()
             )
+
+    def test_comment_download_writes_one_csv_per_video_with_likes_and_metadata(self) -> None:
+        requests = [
+            VideoRequest(
+                video_id="abc123def45",
+                url="https://www.youtube.com/watch?v=abc123def45",
+                row_number=2,
+                institution="Universidad Nacional A",
+                source_title="Titulo del Excel",
+                source_date="2026-07-20",
+            )
+        ]
+
+        class FakeYouTubeClient:
+            def fetch_video_metadata(
+                self, video_ids: list[str]
+            ) -> dict[str, YouTubeVideoMetadata]:
+                return {
+                    video_ids[0]: YouTubeVideoMetadata(
+                        comment_count=1,
+                        upload_date="20240419",
+                        title="Titulo de YouTube",
+                        channel_title="Canal de prueba",
+                    )
+                }
+
+            def fetch_comments(
+                self,
+                _video_id: str,
+                *,
+                include_replies: bool,
+                max_comments: int | None,
+            ) -> list[YouTubeComment]:
+                self.options = (include_replies, max_comments)
+                return [
+                    YouTubeComment(
+                        comment_id="comment-1",
+                        parent_comment_id=None,
+                        is_reply=False,
+                        author_display_name="Estudiante",
+                        author_channel_id="UC-student",
+                        text="Buena experiencia",
+                        like_count=12,
+                        published_at="2025-05-01T10:00:00Z",
+                        updated_at="2025-05-01T10:00:00Z",
+                        reply_count=0,
+                    )
+                ]
+
+        client = FakeYouTubeClient()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            download_root = Path(temp_dir) / "downloads"
+            results = asyncio.run(
+                download_comments(
+                    requests,
+                    download_root=download_root,
+                    youtube_client=client,  # type: ignore[arg-type]
+                    workers=1,
+                )
+            )
+            csv_path = (
+                download_root
+                / "universidad_nacional_a"
+                / "comments"
+                / "abc123def45_comments.csv"
+            )
+            with csv_path.open(encoding="utf-8-sig", newline="") as source:
+                rows = list(csv.DictReader(source))
+            report_dir = download_root / "_reports" / "test_comments"
+            _write_comment_report(report_dir, results)
+            workbook = load_workbook(report_dir / "comentarios.xlsx", data_only=True)
+            try:
+                summary_rows = list(workbook["Comentarios"].values)
+            finally:
+                workbook.close()
+
+        self.assertEqual("completed", results[0].status)
+        self.assertEqual(1, results[0].comment_count)
+        self.assertEqual("Titulo de YouTube", rows[0]["video_title"])
+        self.assertEqual("20240419", rows[0]["video_upload_date"])
+        self.assertEqual("12", rows[0]["like_count"])
+        self.assertEqual("Buena experiencia", rows[0]["comment_text"])
+        self.assertEqual(
+            ("Fecha", "Video", "Titulo", "Universidad", "Comentario", "Likes"),
+            summary_rows[0],
+        )
+        self.assertEqual("2025-05-01T10:00:00Z", summary_rows[1][0])
+        self.assertEqual("Titulo de YouTube", summary_rows[1][2])
+        self.assertEqual("Universidad Nacional A", summary_rows[1][3])
+        self.assertEqual("Buena experiencia", summary_rows[1][4])
+        self.assertEqual(12, summary_rows[1][5])
 
